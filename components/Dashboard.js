@@ -6,7 +6,7 @@ import BookersPanel from "@/components/BookersPanel";
 import DailyChart from "@/components/DailyChart";
 import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
 
 export default function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
@@ -115,9 +115,6 @@ export default function Dashboard({ onLogout }) {
         <div>
           <span className="eyebrow">Closed arbs</span>
           <h1>Resumen de resultados</h1>
-          <p>
-            {data.source} · actualizado {formatDateTime(data.updatedAt)}
-          </p>
         </div>
         <div className="topbar-actions">
           <button className="secondary-button" onClick={loadData}>Actualizar</button>
