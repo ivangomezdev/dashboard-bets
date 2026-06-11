@@ -1,4 +1,5 @@
 import { formatDateTime, formatMoney, formatNumber, profitClass } from "@/lib/format";
+import BookmakerName from "@/components/BookmakerName";
 
 export default function ArbsTable({ arbs }) {
   if (!arbs.length) {
@@ -32,7 +33,7 @@ export default function ArbsTable({ arbs }) {
                   <div className="legs-list">
                     {arb.legs.map((leg) => (
                       <div className="leg-item" key={`${arb.id}-${leg.index}`}>
-                        <span>{leg.booker}</span>
+                        <BookmakerName name={leg.booker} className="leg-bookmaker" />
                         <strong>{leg.selection}</strong>
                         <small>
                           {leg.market} · cuota {formatNumber(leg.odds)} · {formatMoney(leg.stake, leg.currency)}
@@ -46,7 +47,7 @@ export default function ArbsTable({ arbs }) {
               <td>{formatMoney(arb.totalStakeMxn)}</td>
               <td>{formatMoney(arb.payoutMxn)}</td>
               <td className={profitClass(arb.profitMxn)}>{formatMoney(arb.profitMxn)}</td>
-              <td>{arb.winningBooker}</td>
+              <td><BookmakerName name={arb.winningBooker} /></td>
             </tr>
           ))}
         </tbody>
