@@ -1,0 +1,17 @@
+{
+  "name": "new-project-3",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dashboard local de arbs cerrados",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.2.7",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "recharts": "^3.8.1"
+  }
+}
