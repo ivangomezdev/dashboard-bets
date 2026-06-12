@@ -29,7 +29,10 @@ export default function ArbsTable({ arbs }) {
               </td>
               <td>
                 <details>
-                  <summary>{arb.event}</summary>
+                  <summary>
+                    {arb.event}
+                    {arb.synthetic ? <span className="simulation-badge">Simulado</span> : null}
+                  </summary>
                   <div className="legs-list">
                     {arb.legs.map((leg) => (
                       <div className="leg-item" key={`${arb.id}-${leg.index}`}>
