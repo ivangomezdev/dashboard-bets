@@ -126,11 +126,11 @@ export default function Dashboard({ onLogout }) {
         <StatCard
           label="Ganancia neta"
           value={formatMoney(totals.totalProfitMxn)}
-          detail={totals.syntheticCount ? `${totals.syntheticCount} simulaciones incluidas` : "Solo resultados reales"}
+          detail={`${totals.totalArbs} arbs resueltos`}
           tone={totals.totalProfitMxn >= 0 ? "good" : "bad"}
         />
         <StatCard label="Resultado USD" value={formatMoney(totals.totalProfitUsd, "USD")} tone={totals.totalProfitUsd >= 0 ? "good" : "bad"} />
-        <StatCard label="Arbs resueltos" value={totals.totalArbs} detail={`${totals.realCount} reales · ${totals.syntheticCount} simulados`} />
+        <StatCard label="Arbs resueltos" value={totals.totalArbs} detail={`${totals.positive} positivos · ${totals.negative} negativos`} />
         <StatCard label="Dia mas reciente" value={lastDay ? formatMoney(lastDay.profitMxn) : "$0.00"} detail={lastDay ? `${lastDay.date} · ${lastDay.count} arbs` : "Sin datos"} tone={lastDay?.profitMxn >= 0 ? "good" : "bad"} />
       </section>
 
