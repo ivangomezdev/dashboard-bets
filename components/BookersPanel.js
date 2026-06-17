@@ -13,7 +13,7 @@ export default function BookersPanel({ bookers }) {
       </div>
       <div className="booker-list">
         {bookers.map((booker) => {
-          const icon = getBookmakerIcon(booker.name);
+          const icon = getBookmakerIcon(booker.baseName || booker.name);
 
           return (
             <div

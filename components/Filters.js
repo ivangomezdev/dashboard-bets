@@ -11,7 +11,7 @@ export default function Filters({ filters, onChange, options }) {
           type="search"
           value={filters.search}
           onChange={(event) => update("search", event.target.value)}
-          placeholder="Evento, mercado, booker o id"
+          placeholder="Evento, mercado, booker, vps o id"
         />
       </label>
 
@@ -40,6 +40,16 @@ export default function Filters({ filters, onChange, options }) {
           <option value="all">Todos</option>
           {options.bookers.map((booker) => (
             <option key={booker} value={booker}>{booker}</option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        VPS
+        <select value={filters.vps} onChange={(event) => update("vps", event.target.value)}>
+          <option value="all">Todas</option>
+          {options.vpses.map((vps) => (
+            <option key={vps} value={vps}>{vps}</option>
           ))}
         </select>
       </label>

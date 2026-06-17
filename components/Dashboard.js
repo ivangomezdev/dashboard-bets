@@ -6,7 +6,7 @@ import BookersPanel from "@/components/BookersPanel";
 import DailyChart from "@/components/DailyChart";
 import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatMxnAsUsd, USD_RATE_MXN } from "@/lib/format";
 
 export default function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
@@ -16,6 +16,7 @@ export default function Dashboard({ onLogout }) {
     search: "",
     outcome: "all",
     booker: "all",
+    vps: "all",
     date: "all"
   });
 
@@ -47,15 +48,18 @@ export default function Dashboard({ onLogout }) {
 
   const filterOptions = useMemo(() => {
     if (!data) {
-      return { dates: [], bookers: [] };
+      return { dates: [], bookers: [], vpses: [] };
     }
 
     const dates = data.daily.map((day) => day.date).reverse();
     const bookers = Array.from(
-      new Set(data.arbs.flatMap((arb) => arb.legs.map((leg) => leg.booker)))
+      new Set(data.arbs.flatMap((arb) => arb.legs.map((leg) => leg.bookerKey || leg.booker)))
     ).sort((a, b) => a.localeCompare(b));
+    const vpses = Array.from(
+      new Set(data.arbs.flatMap((arb) => arb.legs.map((leg) => leg.vps).filter(Boolean)))
+    ).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-    return { dates, bookers };
+    return { dates, bookers, vpses };
   }, [data]);
 
   const filteredArbs = useMemo(() => {
@@ -68,7 +72,13 @@ export default function Dashboard({ onLogout }) {
     return data.arbs.filter((arb) => {
       const matchesSearch =
         !search ||
-        [arb.event, arb.market, arb.winningBooker, arb.id].some((value) =>
+        [
+          arb.event,
+          arb.market,
+          arb.winningBooker,
+          arb.id,
+          ...arb.legs.flatMap((leg) => [leg.booker, leg.bookerLabel, leg.vps])
+        ].some((value) =>
           String(value || "").toLowerCase().includes(search)
         );
       const matchesOutcome =
@@ -76,10 +86,13 @@ export default function Dashboard({ onLogout }) {
         (filters.outcome === "profit" && arb.profitMxn >= 0) ||
         (filters.outcome === "loss" && arb.profitMxn < 0);
       const matchesBooker =
-        filters.booker === "all" || arb.legs.some((leg) => leg.booker === filters.booker);
+        filters.booker === "all" ||
+        arb.legs.some((leg) => (leg.bookerKey || leg.booker) === filters.booker);
+      const matchesVps =
+        filters.vps === "all" || arb.legs.some((leg) => leg.vps === filters.vps);
       const matchesDate = filters.date === "all" || arb.dateKey === filters.date;
 
-      return matchesSearch && matchesOutcome && matchesBooker && matchesDate;
+      return matchesSearch && matchesOutcome && matchesBooker && matchesVps && matchesDate;
     });
   }, [data, filters]);
 
@@ -125,13 +138,13 @@ export default function Dashboard({ onLogout }) {
       <section className="stats-grid" aria-label="Metricas principales">
         <StatCard
           label="Ganancia neta"
-          value={formatMoney(totals.totalProfitMxn)}
-          detail={`${totals.totalArbs} arbs resueltos`}
+          value={formatMxnAsUsd(totals.totalProfitMxn)}
+          detail={`${totals.totalArbs} arbs resueltos - 1 USD = ${formatMoney(USD_RATE_MXN)}`}
           tone={totals.totalProfitMxn >= 0 ? "good" : "bad"}
         />
-        <StatCard label="Resultado USD" value={formatMoney(totals.totalProfitUsd, "USD")} tone={totals.totalProfitUsd >= 0 ? "good" : "bad"} />
-        <StatCard label="Arbs resueltos" value={totals.totalArbs} detail={`${totals.positive} positivos · ${totals.negative} negativos`} />
-        <StatCard label="Dia mas reciente" value={lastDay ? formatMoney(lastDay.profitMxn) : "$0.00"} detail={lastDay ? `${lastDay.date} · ${lastDay.count} arbs` : "Sin datos"} tone={lastDay?.profitMxn >= 0 ? "good" : "bad"} />
+        <StatCard label="Stake total" value={formatMoney(totals.totalStakeMxn)} detail="Apostado total" />
+        <StatCard label="Arbs resueltos" value={totals.totalArbs} detail={`${totals.positive} positivos - ${totals.negative} negativos`} />
+        <StatCard label="Dia mas reciente" value={lastDay ? formatMxnAsUsd(lastDay.profitMxn) : "$0.00"} detail={lastDay ? `${lastDay.date} - ${lastDay.count} arbs` : "Sin datos"} tone={lastDay?.profitMxn >= 0 ? "good" : "bad"} />
       </section>
 
       <section className="insight-grid">

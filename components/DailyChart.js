@@ -10,10 +10,13 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import { formatMoney } from "@/lib/format";
+import { formatMxnAsUsd, mxnToUsd } from "@/lib/format";
 
 export default function DailyChart({ daily }) {
-  const recentDays = daily.slice(-18);
+  const recentDays = daily.slice(-18).map((day) => ({
+    ...day,
+    profitUsd: mxnToUsd(day.profitMxn)
+  }));
 
   return (
     <section className="chart-panel">
@@ -28,10 +31,19 @@ export default function DailyChart({ daily }) {
           <BarChart data={recentDays} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid stroke="#e6e1d8" vertical={false} />
             <XAxis dataKey="date" tick={{ fill: "#605b54", fontSize: 12 }} tickLine={false} axisLine={false} />
-            <YAxis tick={{ fill: "#605b54", fontSize: 12 }} tickLine={false} axisLine={false} width={72} tickFormatter={(value) => `$${value}`} />
+            <YAxis
+              tick={{ fill: "#605b54", fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+              width={72}
+              tickFormatter={(value) => `$${Number(value || 0).toFixed(0)}`}
+            />
             <Tooltip
               cursor={{ fill: "rgba(21, 33, 45, 0.06)" }}
-              formatter={(value, name) => [formatMoney(value), name === "profitMxn" ? "Resultado MXN" : name]}
+              formatter={(value, name, item) => [
+                formatMxnAsUsd(item.payload.profitMxn),
+                name === "profitUsd" ? "Resultado USD" : name
+              ]}
               labelFormatter={(label) => `Dia ${label}`}
               contentStyle={{
                 border: "1px solid #d9d2c5",
@@ -39,7 +51,7 @@ export default function DailyChart({ daily }) {
                 boxShadow: "0 12px 30px rgba(24, 23, 21, 0.12)"
               }}
             />
-            <Bar dataKey="profitMxn" radius={[6, 6, 0, 0]} maxBarSize={42}>
+            <Bar dataKey="profitUsd" radius={[6, 6, 0, 0]} maxBarSize={42}>
               {recentDays.map((day) => (
                 <Cell key={day.date} fill={day.profitMxn >= 0 ? "#287a5f" : "#ba3f45"} />
               ))}
