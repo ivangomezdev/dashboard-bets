@@ -369,6 +369,49 @@ button:disabled {
   border-radius: 8px;
 }
 
+.table-pagination {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 0.88rem;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pagination-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.pagination-controls label {
+  align-items: center;
+  color: #4f554f;
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 700;
+  gap: 8px;
+}
+
+.pagination-controls select {
+  background: var(--panel-soft);
+  border: 1px solid #cfc8bb;
+  border-radius: 8px;
+  color: var(--ink);
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+.pagination-controls button {
+  background: var(--ink);
+  color: white;
+  min-height: 36px;
+  padding: 0 12px;
+}
+
 .arbs-table {
   width: 100%;
   border-collapse: collapse;
@@ -460,11 +503,16 @@ button:disabled {
   }
 
   .topbar,
-  .section-heading {
+  .section-heading,
+  .table-pagination {
     display: grid;
   }
 
   .topbar-actions {
+    justify-content: start;
+  }
+
+  .pagination-controls {
     justify-content: start;
   }
 
