@@ -8,6 +8,8 @@ import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
 import { formatMoney, formatMxnAsUsd, USD_RATE_MXN } from "@/lib/format";
 
+const CURRENT_BALANCE_USD = 3815;
+
 export default function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -136,6 +138,12 @@ export default function Dashboard({ onLogout }) {
       </header>
 
       <section className="stats-grid" aria-label="Metricas principales">
+        <StatCard
+          label="Saldo actual"
+          value={formatMoney(CURRENT_BALANCE_USD, "USD")}
+          detail="Total disponible"
+          tone="good"
+        />
         <StatCard
           label="Ganancia neta"
           value={formatMxnAsUsd(totals.totalProfitMxn)}
