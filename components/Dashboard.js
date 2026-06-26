@@ -8,7 +8,7 @@ import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
 import { formatMoney, formatMxnAsUsd, USD_RATE_MXN } from "@/lib/format";
 
-const CURRENT_BALANCE_USD = 3815;
+const CURRENT_BALANCE_USD = 3851;
 
 export default function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
