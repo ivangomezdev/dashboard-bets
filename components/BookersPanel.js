@@ -13,7 +13,8 @@ export default function BookersPanel({ bookers }) {
       </div>
       <div className="booker-list">
         {bookers.map((booker) => {
-          const icon = getBookmakerIcon(booker.baseName || booker.name);
+          const displayName = booker.baseName || booker.name.replace(/\s+-\s+VPS\s+\d+$/i, "");
+          const icon = getBookmakerIcon(displayName);
 
           return (
             <div
@@ -23,7 +24,7 @@ export default function BookersPanel({ bookers }) {
             >
               <div>
                 <strong>
-                  <BookmakerName name={booker.name} />
+                  <BookmakerName name={displayName} />
                 </strong>
                 <span>
                   {booker.count} piernas - {booker.won} ganadas - {booker.lost} perdidas

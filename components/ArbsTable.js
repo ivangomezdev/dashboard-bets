@@ -6,6 +6,30 @@ import BookmakerName from "@/components/BookmakerName";
 
 const PAGE_SIZE_OPTIONS = [10, 20];
 
+function inferSport(arb) {
+  const text = [
+    arb.event,
+    arb.market,
+    ...arb.legs.flatMap((leg) => [leg.market, leg.selection])
+  ].join(" ").toLowerCase();
+  const event = String(arb.event || "");
+
+  if (
+    text.includes("total games") ||
+    text.includes("game handicap") ||
+    text.includes("total de juegos") ||
+    text.includes("handicap de juego") ||
+    text.includes("hándicap de juego") ||
+    text.includes("set winner") ||
+    event.includes(",") ||
+    event.includes(" / ")
+  ) {
+    return { icon: "🎾", label: "Tennis" };
+  }
+
+  return { icon: "⚽", label: "Futbol" };
+}
+
 export default function ArbsTable({ arbs }) {
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
@@ -72,37 +96,46 @@ export default function ArbsTable({ arbs }) {
             </tr>
           </thead>
           <tbody>
-            {visibleArbs.map((arb) => (
-              <tr key={arb.id}>
-                <td>
-                  <span className="muted">{arb.dateKey}</span>
-                  <small>{formatDateTime(arb.closedAt)}</small>
-                </td>
-                <td>
-                  <details>
-                    <summary>
-                      {arb.event}
-                    </summary>
-                    <div className="legs-list">
-                      {arb.legs.map((leg) => (
-                        <div className="leg-item" key={`${arb.id}-${leg.index}`}>
-                          <BookmakerName name={leg.bookerLabel || leg.booker} className="leg-bookmaker" />
-                          <strong>{leg.selection}</strong>
-                          <small>
-                            {leg.market} - cuota {formatNumber(leg.odds)} - {formatMoney(leg.stake, leg.currency)}
-                          </small>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                </td>
-                <td>{arb.market}</td>
-                <td>{formatMoney(arb.totalStakeMxn)}</td>
-                <td>{formatMoney(arb.payoutMxn)}</td>
-                <td className={profitClass(arb.profitMxn)}>{formatMxnAsUsd(arb.profitMxn)}</td>
-                <td><BookmakerName name={arb.winningBooker} /></td>
-              </tr>
-            ))}
+            {visibleArbs.map((arb) => {
+              const sport = inferSport(arb);
+
+              return (
+                <tr key={arb.id}>
+                  <td>
+                    <span className="muted">{arb.dateKey}</span>
+                    <small>{formatDateTime(arb.closedAt)}</small>
+                  </td>
+                  <td>
+                    <details>
+                      <summary>
+                        <span className="event-title">
+                          <span aria-label={sport.label} className="sport-icon" role="img">
+                            {sport.icon}
+                          </span>
+                          <span>{arb.event}</span>
+                        </span>
+                      </summary>
+                      <div className="legs-list">
+                        {arb.legs.map((leg) => (
+                          <div className="leg-item" key={`${arb.id}-${leg.index}`}>
+                            <BookmakerName name={leg.bookerLabel || leg.booker} className="leg-bookmaker" />
+                            <strong>{leg.selection}</strong>
+                            <small>
+                              {leg.market} - cuota {formatNumber(leg.odds)} - {formatMoney(leg.stake, leg.currency)}
+                            </small>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  </td>
+                  <td>{arb.market}</td>
+                  <td>{formatMoney(arb.totalStakeMxn)}</td>
+                  <td>{formatMoney(arb.payoutMxn)}</td>
+                  <td className={profitClass(arb.profitMxn)}>{formatMxnAsUsd(arb.profitMxn)}</td>
+                  <td><BookmakerName name={arb.winningBooker} /></td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -8,12 +8,43 @@ import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
 import { formatMoney, formatMxnAsUsd, USD_RATE_MXN } from "@/lib/format";
 
-const CURRENT_BALANCE_USD = 3931;
+const CURRENT_BALANCE_USD = 3885;
+const AVAILABLE_CLIENTS = [
+  ["Pinnacle", 1],
+  ["Bookmakerxyz", 2],
+  ["Pokerstars", 2],
+  ["888sport", 1],
+  ["kalshi", 1],
+  ["polymarket", 1],
+  ["1xbet", 1],
+  ["shuffle", 1],
+  ["fortunejack", 1],
+  ["gamdom", 1],
+  ["sportsbetio", 1],
+  ["bcgame", 1],
+  ["betonline", 2],
+  ["artlinebet", 1]
+];
+
+function withoutUsdCode(value) {
+  return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
+}
+
+function formatCompactMxn(value) {
+  const amount = Number(value || 0);
+
+  if (Math.abs(amount) >= 1000000) {
+    return `${(Math.trunc(amount / 100000) / 10).toFixed(1)}M`;
+  }
+
+  return formatMoney(amount);
+}
 
 export default function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showClients, setShowClients] = useState(false);
   const [filters, setFilters] = useState({
     search: "",
     outcome: "all",
@@ -140,23 +171,65 @@ export default function Dashboard({ onLogout }) {
       <section className="stats-grid" aria-label="Metricas principales">
         <StatCard
           label="Saldo actual"
-          value={formatMoney(CURRENT_BALANCE_USD, "USD")}
+          value={withoutUsdCode(formatMoney(CURRENT_BALANCE_USD, "USD"))}
           detail="Total disponible"
           tone="good"
         />
         <StatCard
           label="Ganancia neta"
-          value={formatMxnAsUsd(totals.totalProfitMxn)}
+          value={withoutUsdCode(formatMxnAsUsd(totals.totalProfitMxn))}
           detail={`${totals.totalArbs} arbs resueltos - 1 USD = ${formatMoney(USD_RATE_MXN)}`}
           tone={totals.totalProfitMxn >= 0 ? "good" : "bad"}
         />
-        <StatCard label="Stake total" value={formatMoney(totals.totalStakeMxn)} detail="Apostado total" />
+        <StatCard label="Stake total" value={formatCompactMxn(totals.totalStakeMxn)} detail="Apostado total" />
         <StatCard label="Arbs resueltos" value={totals.totalArbs} detail={`${totals.positive} positivos - ${totals.negative} negativos`} />
         <StatCard label="Dia mas reciente" value={lastDay ? formatMxnAsUsd(lastDay.profitMxn) : "$0.00"} detail={lastDay ? `${lastDay.date} - ${lastDay.count} arbs` : "Sin datos"} tone={lastDay?.profitMxn >= 0 ? "good" : "bad"} />
+        <button className="stat-card clients-card" type="button" onClick={() => setShowClients(true)}>
+          <span>Clientes disponibles</span>
+          <strong>{AVAILABLE_CLIENTS.reduce((sum, [, count]) => sum + count, 0)}</strong>
+          <small>Ver detalle por booker</small>
+        </button>
       </section>
 
+      {showClients ? (
+        <div className="modal-backdrop" role="presentation" onClick={() => setShowClients(false)}>
+          <section
+            aria-labelledby="clients-modal-title"
+            aria-modal="true"
+            className="clients-modal"
+            role="dialog"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="panel-heading">
+              <div>
+                <span className="eyebrow">Bookers</span>
+                <h2 id="clients-modal-title">Clientes disponibles</h2>
+              </div>
+              <button className="ghost-button" type="button" onClick={() => setShowClients(false)}>
+                Cerrar
+              </button>
+            </div>
+            <div className="client-list">
+              {AVAILABLE_CLIENTS.map(([name, count]) => (
+                <div className="client-row" key={name}>
+                  <span>{name}</span>
+                  <b>{count}</b>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      ) : null}
+
       <section className="insight-grid">
-        <DailyChart daily={data.daily} />
+        <div className="chart-column">
+          <DailyChart daily={data.daily} />
+          <section className="work-panel">
+            <span className="eyebrow">Roadmap</span>
+            <h2>EN PROCESO</h2>
+            <p>AGREGANDO TENIS</p>
+          </section>
+        </div>
         <BookersPanel bookers={data.bookers} />
       </section>
 

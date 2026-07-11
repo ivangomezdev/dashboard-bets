@@ -215,6 +215,29 @@ button:disabled {
   gap: 14px;
 }
 
+.clients-card {
+  border: 1px solid rgba(39, 98, 123, 0.38);
+  color: var(--ink);
+  text-align: left;
+  box-shadow:
+    0 0 0 1px rgba(39, 98, 123, 0.12),
+    0 0 24px rgba(39, 98, 123, 0.18),
+    var(--shadow);
+}
+
+.clients-card strong {
+  text-align: center;
+  text-shadow: 0 0 18px rgba(39, 98, 123, 0.32);
+}
+
+.clients-card:hover {
+  box-shadow:
+    0 0 0 1px rgba(39, 98, 123, 0.24),
+    0 0 32px rgba(39, 98, 123, 0.26),
+    0 20px 54px rgba(28, 28, 24, 0.12);
+  transform: translateY(-1px);
+}
+
 .stat-card span,
 .muted,
 .result-count {
@@ -242,6 +265,47 @@ button:disabled {
   border-top: 4px solid var(--red);
 }
 
+.modal-backdrop {
+  align-items: center;
+  background: rgba(31, 37, 40, 0.42);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 20;
+}
+
+.clients-modal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 28px 74px rgba(28, 28, 24, 0.24);
+  max-height: min(720px, 90vh);
+  overflow: auto;
+  padding: 22px;
+  width: min(520px, 100%);
+}
+
+.client-list {
+  display: grid;
+  gap: 10px;
+}
+
+.client-row {
+  align-items: center;
+  background: #f8f6f0;
+  border: 1px solid #e8e1d6;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.client-row b {
+  color: var(--blue);
+}
+
 .insight-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.75fr);
@@ -251,8 +315,32 @@ button:disabled {
 
 .chart-panel,
 .bookers-panel,
-.table-section {
+.table-section,
+.work-panel {
   padding: 20px;
+}
+
+.chart-column {
+  display: grid;
+  gap: 14px;
+}
+
+.work-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(39, 98, 123, 0.24);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.work-panel h2 {
+  font-size: 1.25rem;
+  margin: 6px 0 8px;
+}
+
+.work-panel p {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0;
 }
 
 .panel-heading,
@@ -448,6 +536,26 @@ button:disabled {
   list-style-position: inside;
 }
 
+.event-title {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  vertical-align: middle;
+}
+
+.sport-icon {
+  align-items: center;
+  background: #f8f6f0;
+  border: 1px solid #e8e1d6;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.98rem;
+  height: 28px;
+  justify-content: center;
+  line-height: 1;
+  width: 28px;
+}
+
 .legs-list {
   display: grid;
   gap: 8px;
@@ -522,6 +630,14 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
+  .arbs-table summary {
+    list-style: none;
+  }
+
+  .arbs-table summary::-webkit-details-marker {
+    display: none;
+  }
+
   .bookers-panel {
     grid-column: auto;
   }
@@ -531,6 +647,7 @@ button:disabled {
   .error-panel,
   .chart-panel,
   .bookers-panel,
+  .work-panel,
   .table-section {
     padding: 18px;
   }
