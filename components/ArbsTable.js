@@ -89,8 +89,8 @@ export default function ArbsTable({ arbs }) {
               <th>Fecha</th>
               <th>Evento</th>
               <th>Mercado</th>
-              <th>Stake</th>
-              <th>Payout</th>
+              <th>Stake USD</th>
+              <th>Payout USD</th>
               <th>Resultado USD</th>
               <th>Ganador</th>
             </tr>
@@ -129,8 +129,8 @@ export default function ArbsTable({ arbs }) {
                     </details>
                   </td>
                   <td>{arb.market}</td>
-                  <td>{formatMoney(arb.totalStakeMxn)}</td>
-                  <td>{formatMoney(arb.payoutMxn)}</td>
+                  <td>{formatMxnAsUsd(arb.totalStakeMxn)}</td>
+                  <td>{formatMxnAsUsd(arb.payoutMxn)}</td>
                   <td className={profitClass(arb.profitMxn)}>{formatMxnAsUsd(arb.profitMxn)}</td>
                   <td><BookmakerName name={arb.winningBooker} /></td>
                 </tr>
