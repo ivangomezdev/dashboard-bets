@@ -228,8 +228,10 @@ export default function Dashboard({ onLogout }) {
           <DailyChart daily={data.daily} />
           <section className="work-panel">
             <span className="eyebrow">Roadmap</span>
-            <h2>EN PROCESO</h2>
-            <p>AGREGANDO TENIS</p>
+            <h2>TENIS LISTO</h2>
+            <p>SOLO MARKETS: TOTAL SETS - SETS HANDICAP - 1X2</p>
+            <p>Los demás mueven la cuota muy rápido.</p>
+            <p>1XBIT AGREGADO</p>
           </section>
         </div>
         <BookersPanel bookers={data.bookers} />
