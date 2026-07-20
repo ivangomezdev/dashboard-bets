@@ -13,7 +13,7 @@ import {
 import { formatMxnAsUsd, mxnToUsd } from "@/lib/format";
 
 export default function DailyChart({ daily }) {
-  const recentDays = daily.slice(-18).map((day) => ({
+  const recentDays = daily.slice(-16).map((day) => ({
     ...day,
     profitUsd: mxnToUsd(day.profitMxn)
   }));
