@@ -6,25 +6,30 @@ import BookersPanel from "@/components/BookersPanel";
 import DailyChart from "@/components/DailyChart";
 import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
-import { formatMoney, formatMxnAsUsd, USD_RATE_MXN } from "@/lib/format";
+import { formatMoney, formatMxnAsUsd } from "@/lib/format";
 
 const CURRENT_BALANCE_USD = 3885;
 const AVAILABLE_CLIENTS = [
-  ["Pinnacle", 1],
-  ["Bookmakerxyz", 2],
-  ["Pokerstars", 2],
-  ["888sport", 1],
-  ["kalshi", 1],
-  ["polymarket", 1],
-  ["1xbet", 1],
-  ["shuffle", 1],
-  ["fortunejack", 1],
-  ["gamdom", 1],
-  ["sportsbetio", 1],
-  ["bcgame", 1],
-  ["betonline", 2],
-  ["artlinebet", 1]
+  { name: "Pinnacle", count: 1 },
+  { name: "Bookmakerxyz", count: 2, status: "Inactivo por delay" },
+  { name: "Pokerstars", count: 2 },
+  { name: "888sport", count: 2 },
+  { name: "Kalshi", count: 1 },
+  { name: "Polymarket", count: 1 },
+  { name: "1xbet", count: 0, status: "Baneado" },
+  { name: "1xbit", count: 1 },
+  { name: "Shuffle", count: 1 },
+  { name: "FortuneJack", count: 1, status: "Inactivo por delay" },
+  { name: "Gamdom", count: 1 },
+  { name: "Sportsbetio", count: 1 },
+  { name: "BCGame", count: 1 },
+  { name: "BetOnline", count: 2 },
+  { name: "ArtLineBet", count: 1 }
 ];
+const AVAILABLE_CLIENT_COUNT = AVAILABLE_CLIENTS.reduce(
+  (sum, client) => sum + (client.status ? 0 : client.count),
+  0
+);
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
@@ -175,18 +180,12 @@ export default function Dashboard({ onLogout }) {
           detail="Total disponible"
           tone="good"
         />
-        <StatCard
-          label="Ganancia neta"
-          value={withoutUsdCode(formatMxnAsUsd(totals.totalProfitMxn))}
-          detail={`${totals.totalArbs} arbs resueltos - 1 USD = ${formatMoney(USD_RATE_MXN)}`}
-          tone={totals.totalProfitMxn >= 0 ? "good" : "bad"}
-        />
         <StatCard label="Stake total" value={formatCompactMxn(totals.totalStakeMxn)} detail="Apostado total" />
         <StatCard label="Arbs resueltos" value={totals.totalArbs} detail={`${totals.positive} positivos - ${totals.negative} negativos`} />
         <StatCard label="Dia mas reciente" value={lastDay ? formatMxnAsUsd(lastDay.profitMxn) : "$0.00"} detail={lastDay ? `${lastDay.date} - ${lastDay.count} arbs` : "Sin datos"} tone={lastDay?.profitMxn >= 0 ? "good" : "bad"} />
         <button className="stat-card clients-card" type="button" onClick={() => setShowClients(true)}>
           <span>Clientes disponibles</span>
-          <strong>{AVAILABLE_CLIENTS.reduce((sum, [, count]) => sum + count, 0)}</strong>
+          <strong>{AVAILABLE_CLIENT_COUNT}</strong>
           <small>Ver detalle por booker</small>
         </button>
       </section>
@@ -210,10 +209,13 @@ export default function Dashboard({ onLogout }) {
               </button>
             </div>
             <div className="client-list">
-              {AVAILABLE_CLIENTS.map(([name, count]) => (
-                <div className="client-row" key={name}>
-                  <span>{name}</span>
-                  <b>{count}</b>
+              {AVAILABLE_CLIENTS.map((client) => (
+                <div className={`client-row ${client.status ? "inactive" : ""}`} key={client.name}>
+                  <span className="client-name">
+                    <span>{client.name}</span>
+                    {client.status ? <small>{client.status}</small> : null}
+                  </span>
+                  <b>{client.count}</b>
                 </div>
               ))}
             </div>
