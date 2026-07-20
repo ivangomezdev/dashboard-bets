@@ -103,7 +103,7 @@ export default function ArbsTable({ arbs }) {
                 <tr key={arb.id}>
                   <td>
                     <span className="muted">{arb.dateKey}</span>
-                    <small>{formatDateTime(arb.closedAt)}</small>
+                    <small>{formatDateTime(arb.createdAt || arb.closedAt)}</small>
                   </td>
                   <td>
                     <details>
