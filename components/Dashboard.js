@@ -20,6 +20,7 @@ const AVAILABLE_CLIENTS = [
   { name: "1xbit", count: 1 },
   { name: "Shuffle", count: 1 },
   { name: "FortuneJack", count: 1, status: "Inactivo por delay" },
+  { name: "Jack", count: 1 },
   { name: "Gamdom", count: 1 },
   { name: "Sportsbetio", count: 1 },
   { name: "BCGame", count: 1 },
