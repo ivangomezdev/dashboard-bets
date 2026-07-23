@@ -24,7 +24,7 @@ const AVAILABLE_CLIENTS = [
   { name: "Gamdom", count: 1 },
   { name: "Sportsbetio", count: 1 },
   { name: "BCGame", count: 1 },
-  { name: "BetOnline", count: 2 },
+  { name: "BetOnline", count: 1 },
   { name: "ArtLineBet", count: 1 }
 ];
 const AVAILABLE_CLIENT_COUNT = AVAILABLE_CLIENTS.reduce(
