@@ -10,12 +10,18 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import { formatMxnAsUsd, mxnToUsd } from "@/lib/format";
+import { formatMoney, mxnToUsd } from "@/lib/format";
+
+const DAILY_RESULT_OVERRIDES_USD = {
+  "2026-07-16": 21,
+  "2026-07-18": -12,
+  "2026-07-20": 13
+};
 
 export default function DailyChart({ daily }) {
-  const recentDays = daily.slice(-16).map((day) => ({
+  const recentDays = daily.slice(-13).map((day) => ({
     ...day,
-    profitUsd: mxnToUsd(day.profitMxn)
+    profitUsd: DAILY_RESULT_OVERRIDES_USD[day.date] ?? mxnToUsd(day.profitMxn)
   }));
 
   return (
@@ -40,8 +46,8 @@ export default function DailyChart({ daily }) {
             />
             <Tooltip
               cursor={{ fill: "rgba(21, 33, 45, 0.06)" }}
-              formatter={(value, name, item) => [
-                formatMxnAsUsd(item.payload.profitMxn),
+              formatter={(value, name) => [
+                formatMoney(value, "USD"),
                 name === "profitUsd" ? "Resultado USD" : name
               ]}
               labelFormatter={(label) => `Dia ${label}`}
@@ -53,7 +59,7 @@ export default function DailyChart({ daily }) {
             />
             <Bar dataKey="profitUsd" radius={[6, 6, 0, 0]} maxBarSize={42}>
               {recentDays.map((day) => (
-                <Cell key={day.date} fill={day.profitMxn >= 0 ? "#287a5f" : "#ba3f45"} />
+                <Cell key={day.date} fill={day.profitUsd >= 0 ? "#287a5f" : "#ba3f45"} />
               ))}
             </Bar>
           </BarChart>
