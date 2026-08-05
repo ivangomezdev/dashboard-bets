@@ -8,24 +8,28 @@ import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
 import { formatMoney, formatMxnAsUsd } from "@/lib/format";
 
-const CURRENT_BALANCE_USD = 3885;
+const CURRENT_BALANCE_USD = 4134;
 const AVAILABLE_CLIENTS = [
-  { name: "Pinnacle", count: 1 },
-  { name: "Bookmakerxyz", count: 2, status: "Inactivo por delay" },
-  { name: "Pokerstars", count: 2 },
-  { name: "888sport", count: 2 },
-  { name: "Kalshi", count: 1 },
-  { name: "Polymarket", count: 1 },
-  { name: "1xbet", count: 0, status: "Baneado" },
-  { name: "1xbit", count: 1 },
-  { name: "Shuffle", count: 1 },
-  { name: "FortuneJack", count: 1, status: "Inactivo por delay" },
-  { name: "Jack", count: 1 },
-  { name: "Gamdom", count: 1 },
-  { name: "Sportsbetio", count: 1 },
-  { name: "BCGame", count: 1 },
-  { name: "BetOnline", count: 1 },
-  { name: "ArtLineBet", count: 1 }
+  { name: "ARTLINE", count: 3 },
+  { name: "PINNACLE", count: 1 },
+  { name: "KALSHI", count: 2 },
+  { name: "JACK", count: 3 },
+  { name: "1XBET", count: 0 },
+  { name: "1XBIT", count: 2 },
+  { name: "MELBET", count: 3 },
+  { name: "BETFURY", count: 3 },
+  { name: "GAMDOM", count: 4 },
+  { name: "POLYMARKET", count: 2 },
+  { name: "POKERSTARS", count: 2 },
+  { name: "888SPORT", count: 1 },
+  { name: "SPORTSBETIO", count: 1 },
+  { name: "SXBET", count: 1 },
+  { name: "BETDEX", count: 1 },
+  { name: "CLOUDBET", count: 2 },
+  { name: "1WIN", count: 3 },
+  { name: "VAVADA", count: 1 },
+  { name: "BETONLINE", count: 3 },
+  { name: "BC.GAME", count: 3 }
 ];
 const AVAILABLE_CLIENT_COUNT = AVAILABLE_CLIENTS.reduce(
   (sum, client) => sum + (client.status ? 0 : client.count),
