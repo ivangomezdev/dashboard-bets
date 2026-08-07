@@ -352,6 +352,12 @@ button:disabled {
   color: var(--red);
 }
 
+.clients-totals .pre-market-total {
+  background: rgba(168, 111, 25, 0.09);
+  border-color: rgba(168, 111, 25, 0.24);
+  color: var(--amber);
+}
+
 .client-booker-grid {
   display: grid;
   gap: 14px;
@@ -412,6 +418,11 @@ button:disabled {
 .client-account.is-offline {
   background: rgba(186, 63, 69, 0.045);
   border-color: rgba(186, 63, 69, 0.22);
+}
+
+.client-account.is-pre-market {
+  background: rgba(168, 111, 25, 0.045);
+  border-color: rgba(168, 111, 25, 0.22);
 }
 
 .client-account-meta {
@@ -503,6 +514,15 @@ button:disabled {
 
 .status-badge.is-offline i {
   background: var(--red);
+}
+
+.status-badge.is-pre-market {
+  background: rgba(168, 111, 25, 0.11);
+  color: var(--amber);
+}
+
+.status-badge.is-pre-market i {
+  background: var(--amber);
 }
 
 .client-arbs-section {

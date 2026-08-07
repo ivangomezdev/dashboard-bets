@@ -4,8 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ArbsTable from "@/components/ArbsTable";
 import BookmakerName from "@/components/BookmakerName";
 
-const MXN_PER_USD = 17;
-
 function formatAccountBalance(value, currency) {
   const amount = new Intl.NumberFormat("es-MX", {
     minimumFractionDigits: 2,
@@ -40,6 +38,45 @@ function matchesBooker(accountBooker, legBooker) {
   return accountKey === legKey || accountKey.includes(legKey) || legKey.includes(accountKey);
 }
 
+function accountMatchesLeg(account, leg, accounts) {
+  if (!matchesBooker(account.booker, leg.bookerBase || leg.booker)) {
+    return false;
+  }
+
+  const legVps = normalizeVps(leg.vps);
+
+  if (legVps) {
+    return normalizeVps(account.vps) === legVps;
+  }
+
+  const bookerAccounts = accounts.filter((candidate) =>
+    matchesBooker(candidate.booker, leg.bookerBase || leg.booker)
+  );
+
+  if (bookerAccounts.length === 1) {
+    return bookerAccounts[0].id === account.id;
+  }
+
+  const currencyAccounts = bookerAccounts.filter(
+    (candidate) =>
+      String(candidate.currency).toUpperCase() === String(leg.currency).toUpperCase()
+  );
+
+  return currencyAccounts.length === 1 && currencyAccounts[0].id === account.id;
+}
+
+function statusClassName(status) {
+  if (status === "ON") {
+    return "is-online";
+  }
+
+  if (status === "PRE MARKET") {
+    return "is-pre-market";
+  }
+
+  return "is-offline";
+}
+
 function formatShortDate(date) {
   const [year, month, day] = String(date || "").split("-");
   return year && month && day ? `${day}/${month}/${year}` : "Sin fecha";
@@ -49,6 +86,8 @@ export default function ClientsSection({ accounts, arbs }) {
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const resultsRef = useRef(null);
   const activeCount = accounts.filter((account) => account.status === "ON").length;
+  const preMarketCount = accounts.filter((account) => account.status === "PRE MARKET").length;
+  const offlineCount = accounts.filter((account) => account.status === "OFF").length;
   const selectedAccount = accounts.find((account) => account.id === selectedAccountId) || null;
   const latestDate = useMemo(
     () =>
@@ -92,31 +131,41 @@ export default function ClientsSection({ accounts, arbs }) {
   }, [arbs, selectedAccount]);
 
   const lastDayAccountStats = useMemo(() => {
-    const stats = new Map();
+    const stats = new Map(
+      accounts.map((account) => [account.id, { count: 0, profitUsd: 0 }])
+    );
     const lastDayArbs = arbs.filter((arb) => arb.dateKey === latestDate);
 
-    for (const account of accounts) {
-      const selectedVps = normalizeVps(account.vps);
-      let count = 0;
-      let profitUsd = 0;
+    for (const arb of lastDayArbs) {
+      const participatingAccountIds = new Set();
 
-      for (const arb of lastDayArbs) {
-        const accountParticipated = arb.legs.some(
-          (leg) =>
-            normalizeVps(leg.vps) === selectedVps &&
-            matchesBooker(account.booker, leg.bookerBase || leg.booker)
-        );
-
-        if (accountParticipated) {
-          count += 1;
-          profitUsd += Number(arb.profitMxn || 0) / MXN_PER_USD;
+      for (const leg of arb.legs) {
+        for (const account of accounts) {
+          if (accountMatchesLeg(account, leg, accounts)) {
+            participatingAccountIds.add(account.id);
+          }
         }
       }
 
-      stats.set(account.id, { count, profitUsd: Number(profitUsd.toFixed(2)) });
+      if (!participatingAccountIds.size) {
+        continue;
+      }
+
+      const allocatedProfitUsd = Number(arb.profitUsd || 0) / participatingAccountIds.size;
+
+      for (const accountId of participatingAccountIds) {
+        const current = stats.get(accountId);
+        current.count += 1;
+        current.profitUsd += allocatedProfitUsd;
+      }
     }
 
-    return stats;
+    return new Map(
+      Array.from(stats, ([accountId, value]) => [
+        accountId,
+        { ...value, profitUsd: Number(value.profitUsd.toFixed(2)) }
+      ])
+    );
   }, [accounts, arbs, latestDate]);
 
   useEffect(() => {
@@ -136,7 +185,8 @@ export default function ClientsSection({ accounts, arbs }) {
         <div className="clients-totals" aria-label="Resumen de cuentas">
           <span><strong>{accounts.length}</strong> cuentas</span>
           <span className="active-total"><strong>{activeCount}</strong> activas</span>
-          <span className="offline-total"><strong>{accounts.length - activeCount}</strong> desconectada</span>
+          <span className="pre-market-total"><strong>{preMarketCount}</strong> pre market</span>
+          <span className="offline-total"><strong>{offlineCount}</strong> desconectadas</span>
           <span><strong>{formatShortDate(latestDate)}</strong> último día</span>
         </div>
       </div>
@@ -168,14 +218,14 @@ export default function ClientsSection({ accounts, arbs }) {
                   return (
                     <button
                       aria-pressed={isSelected}
-                      className={`client-account ${account.status === "OFF" ? "is-offline" : ""} ${isSelected ? "is-selected" : ""}`}
+                      className={`client-account ${statusClassName(account.status)} ${isSelected ? "is-selected" : ""}`}
                       key={account.id}
                       onClick={() => setSelectedAccountId(account.id)}
                       type="button"
                     >
                       <span className="client-account-meta">
                         <span>{account.vps}</span>
-                        <span className={`status-badge ${account.status === "ON" ? "is-online" : "is-offline"}`}>
+                        <span className={`status-badge ${statusClassName(account.status)}`}>
                           <i aria-hidden="true" />
                           {account.status}
                         </span>
