@@ -3,38 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import ArbsTable from "@/components/ArbsTable";
 import BookersPanel from "@/components/BookersPanel";
+import ClientsSection from "@/components/ClientsSection";
 import DailyChart from "@/components/DailyChart";
 import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
+import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney, formatMxnAsUsd } from "@/lib/format";
 
 const CURRENT_BALANCE_USD = 4134;
-const AVAILABLE_CLIENTS = [
-  { name: "ARTLINE", count: 3 },
-  { name: "PINNACLE", count: 1 },
-  { name: "KALSHI", count: 2 },
-  { name: "JACK", count: 3 },
-  { name: "1XBET", count: 0 },
-  { name: "1XBIT", count: 2 },
-  { name: "MELBET", count: 3 },
-  { name: "BETFURY", count: 3 },
-  { name: "GAMDOM", count: 4 },
-  { name: "POLYMARKET", count: 2 },
-  { name: "POKERSTARS", count: 2 },
-  { name: "888SPORT", count: 1 },
-  { name: "SPORTSBETIO", count: 1 },
-  { name: "SXBET", count: 1 },
-  { name: "BETDEX", count: 1 },
-  { name: "CLOUDBET", count: 2 },
-  { name: "1WIN", count: 3 },
-  { name: "VAVADA", count: 1 },
-  { name: "BETONLINE", count: 3 },
-  { name: "BC.GAME", count: 3 }
-];
-const AVAILABLE_CLIENT_COUNT = AVAILABLE_CLIENTS.reduce(
-  (sum, client) => sum + (client.status ? 0 : client.count),
-  0
-);
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
@@ -54,7 +30,7 @@ export default function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showClients, setShowClients] = useState(false);
+  const [activeView, setActiveView] = useState("summary");
   const [filters, setFilters] = useState({
     search: "",
     outcome: "all",
@@ -169,15 +145,37 @@ export default function Dashboard({ onLogout }) {
     <main className="dashboard-shell">
       <header className="topbar">
         <div>
-          <span className="eyebrow">Closed arbs</span>
-          <h1>Resumen de resultados</h1>
+          <span className="eyebrow">{activeView === "clients" ? "Control de cuentas" : "Closed arbs"}</span>
+          <h1>{activeView === "clients" ? "Clientes" : "Resumen de resultados"}</h1>
         </div>
         <div className="topbar-actions">
+          <nav className="view-nav" aria-label="Secciones del dashboard">
+            <button
+              aria-current={activeView === "summary" ? "page" : undefined}
+              className={activeView === "summary" ? "is-active" : ""}
+              onClick={() => setActiveView("summary")}
+              type="button"
+            >
+              Resumen
+            </button>
+            <button
+              aria-current={activeView === "clients" ? "page" : undefined}
+              className={activeView === "clients" ? "is-active" : ""}
+              onClick={() => setActiveView("clients")}
+              type="button"
+            >
+              Clientes
+            </button>
+          </nav>
           <button className="secondary-button" onClick={loadData}>Actualizar</button>
           <button className="ghost-button" onClick={handleLogout}>Salir</button>
         </div>
       </header>
 
+      {activeView === "clients" ? (
+        <ClientsSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} />
+      ) : (
+        <>
       <section className="stats-grid" aria-label="Metricas principales">
         <StatCard
           label="Saldo actual"
@@ -188,55 +186,19 @@ export default function Dashboard({ onLogout }) {
         <StatCard label="Stake total" value={formatCompactMxn(totals.totalStakeMxn)} detail="Apostado total" />
         <StatCard label="Arbs resueltos" value={totals.totalArbs} detail={`${totals.positive} positivos - ${totals.negative} negativos`} />
         <StatCard label="Dia mas reciente" value={lastDay ? formatMxnAsUsd(lastDay.profitMxn) : "$0.00"} detail={lastDay ? `${lastDay.date} - ${lastDay.count} arbs` : "Sin datos"} tone={lastDay?.profitMxn >= 0 ? "good" : "bad"} />
-        <button className="stat-card clients-card" type="button" onClick={() => setShowClients(true)}>
+        <button className="stat-card clients-card" type="button" onClick={() => setActiveView("clients")}>
           <span>Clientes disponibles</span>
-          <strong>{AVAILABLE_CLIENT_COUNT}</strong>
-          <small>Ver detalle por booker</small>
+          <strong>{ACTIVE_CLIENT_COUNT}</strong>
+          <small>Ver cuentas, VPS y saldos</small>
         </button>
       </section>
-
-      {showClients ? (
-        <div className="modal-backdrop" role="presentation" onClick={() => setShowClients(false)}>
-          <section
-            aria-labelledby="clients-modal-title"
-            aria-modal="true"
-            className="clients-modal"
-            role="dialog"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="panel-heading">
-              <div>
-                <span className="eyebrow">Bookers</span>
-                <h2 id="clients-modal-title">Clientes disponibles</h2>
-              </div>
-              <button className="ghost-button" type="button" onClick={() => setShowClients(false)}>
-                Cerrar
-              </button>
-            </div>
-            <div className="client-list">
-              {AVAILABLE_CLIENTS.map((client) => (
-                <div className={`client-row ${client.status ? "inactive" : ""}`} key={client.name}>
-                  <span className="client-name">
-                    <span>{client.name}</span>
-                    {client.status ? <small>{client.status}</small> : null}
-                  </span>
-                  <b>{client.count}</b>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      ) : null}
 
       <section className="insight-grid">
         <div className="chart-column">
           <DailyChart daily={data.daily} />
           <section className="work-panel">
             <span className="eyebrow">Roadmap</span>
-            <h2>TENIS LISTO</h2>
-            <p>SOLO MARKETS: TOTAL SETS - SETS HANDICAP - 1X2</p>
-            <p>Los demás mueven la cuota muy rápido.</p>
-            <p>1XBIT AGREGADO</p>
+            <h2>CONFIGURANDO VPS Y CARGANDO CUENTAS</h2>
           </section>
         </div>
         <BookersPanel bookers={data.bookers} />
@@ -253,6 +215,8 @@ export default function Dashboard({ onLogout }) {
         <Filters filters={filters} onChange={setFilters} options={filterOptions} />
         <ArbsTable arbs={filteredArbs} />
       </section>
+        </>
+      )}
     </main>
   );
 }
