@@ -45,24 +45,6 @@ function formatShortDate(date) {
   return year && month && day ? `${day}/${month}/${year}` : "Sin fecha";
 }
 
-function legProfitUsd(leg) {
-  const stake = Number(leg.stake || 0);
-  const currencyRate = String(leg.currency || "").toUpperCase() === "MXN" ? 1 / MXN_PER_USD : 1;
-
-  if (leg.outcome === "won") {
-    const recordedPayout = Number(leg.actualPayout || leg.actualPayoutMxn || 0);
-    const estimatedPayout = stake * Number(leg.odds || 0);
-    const payout = recordedPayout > 0 ? recordedPayout : estimatedPayout;
-    return (payout - stake) * currencyRate;
-  }
-
-  if (leg.outcome === "lost") {
-    return -stake * currencyRate;
-  }
-
-  return 0;
-}
-
 export default function ClientsSection({ accounts, arbs }) {
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const resultsRef = useRef(null);
@@ -119,15 +101,15 @@ export default function ClientsSection({ accounts, arbs }) {
       let profitUsd = 0;
 
       for (const arb of lastDayArbs) {
-        const matchingLegs = arb.legs.filter(
+        const accountParticipated = arb.legs.some(
           (leg) =>
             normalizeVps(leg.vps) === selectedVps &&
             matchesBooker(account.booker, leg.bookerBase || leg.booker)
         );
 
-        if (matchingLegs.length) {
+        if (accountParticipated) {
           count += 1;
-          profitUsd += matchingLegs.reduce((sum, leg) => sum + legProfitUsd(leg), 0);
+          profitUsd += Number(arb.profitMxn || 0) / MXN_PER_USD;
         }
       }
 
