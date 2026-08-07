@@ -3,7 +3,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ArbsTable from "@/components/ArbsTable";
 import BookmakerName from "@/components/BookmakerName";
-import { formatMoney } from "@/lib/format";
+
+function formatAccountBalance(value, currency) {
+  const amount = new Intl.NumberFormat("es-MX", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(Number(value || 0));
+
+  return `${amount} ${String(currency || "").toUpperCase()}`;
+}
 
 function normalizeBooker(value) {
   return String(value || "")
@@ -111,7 +119,7 @@ export default function ClientsSection({ accounts, arbs }) {
                           {account.status}
                         </span>
                       </span>
-                      <strong>{formatMoney(account.balance, account.currency)}</strong>
+                      <strong>{formatAccountBalance(account.balance, account.currency)}</strong>
                       {account.note ? <small>{account.note}</small> : null}
                     </button>
                   );
