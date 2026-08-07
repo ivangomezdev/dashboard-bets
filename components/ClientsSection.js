@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ArbsTable from "@/components/ArbsTable";
 import BookmakerName from "@/components/BookmakerName";
 
+const MXN_PER_USD = 17;
+
 function formatAccountBalance(value, currency) {
   const amount = new Intl.NumberFormat("es-MX", {
     minimumFractionDigits: 2,
@@ -11,6 +13,12 @@ function formatAccountBalance(value, currency) {
   }).format(Number(value || 0));
 
   return `${amount} ${String(currency || "").toUpperCase()}`;
+}
+
+function formatSignedUsd(value) {
+  const amount = Number(value || 0);
+  const sign = amount > 0 ? "+" : amount < 0 ? "-" : "";
+  return `${sign}${formatAccountBalance(Math.abs(amount), "USD")}`;
 }
 
 function normalizeBooker(value) {
@@ -32,11 +40,43 @@ function matchesBooker(accountBooker, legBooker) {
   return accountKey === legKey || accountKey.includes(legKey) || legKey.includes(accountKey);
 }
 
+function formatShortDate(date) {
+  const [year, month, day] = String(date || "").split("-");
+  return year && month && day ? `${day}/${month}/${year}` : "Sin fecha";
+}
+
+function legProfitUsd(leg) {
+  const stake = Number(leg.stake || 0);
+  const currencyRate = String(leg.currency || "").toUpperCase() === "MXN" ? 1 / MXN_PER_USD : 1;
+
+  if (leg.outcome === "won") {
+    const recordedPayout = Number(leg.actualPayout || leg.actualPayoutMxn || 0);
+    const estimatedPayout = stake * Number(leg.odds || 0);
+    const payout = recordedPayout > 0 ? recordedPayout : estimatedPayout;
+    return (payout - stake) * currencyRate;
+  }
+
+  if (leg.outcome === "lost") {
+    return -stake * currencyRate;
+  }
+
+  return 0;
+}
+
 export default function ClientsSection({ accounts, arbs }) {
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const resultsRef = useRef(null);
   const activeCount = accounts.filter((account) => account.status === "ON").length;
   const selectedAccount = accounts.find((account) => account.id === selectedAccountId) || null;
+  const latestDate = useMemo(
+    () =>
+      arbs.reduce(
+        (latest, arb) =>
+          arb.dateKey !== "Sin fecha" && arb.dateKey > latest ? arb.dateKey : latest,
+        ""
+      ),
+    [arbs]
+  );
 
   const groupedAccounts = useMemo(() => {
     const groups = new Map();
@@ -69,6 +109,34 @@ export default function ClientsSection({ accounts, arbs }) {
     );
   }, [arbs, selectedAccount]);
 
+  const lastDayAccountStats = useMemo(() => {
+    const stats = new Map();
+    const lastDayArbs = arbs.filter((arb) => arb.dateKey === latestDate);
+
+    for (const account of accounts) {
+      const selectedVps = normalizeVps(account.vps);
+      let count = 0;
+      let profitUsd = 0;
+
+      for (const arb of lastDayArbs) {
+        const matchingLegs = arb.legs.filter(
+          (leg) =>
+            normalizeVps(leg.vps) === selectedVps &&
+            matchesBooker(account.booker, leg.bookerBase || leg.booker)
+        );
+
+        if (matchingLegs.length) {
+          count += 1;
+          profitUsd += matchingLegs.reduce((sum, leg) => sum + legProfitUsd(leg), 0);
+        }
+      }
+
+      stats.set(account.id, { count, profitUsd: Number(profitUsd.toFixed(2)) });
+    }
+
+    return stats;
+  }, [accounts, arbs, latestDate]);
+
   useEffect(() => {
     if (selectedAccountId) {
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -87,6 +155,7 @@ export default function ClientsSection({ accounts, arbs }) {
           <span><strong>{accounts.length}</strong> cuentas</span>
           <span className="active-total"><strong>{activeCount}</strong> activas</span>
           <span className="offline-total"><strong>{accounts.length - activeCount}</strong> desconectada</span>
+          <span><strong>{formatShortDate(latestDate)}</strong> último día</span>
         </div>
       </div>
 
@@ -103,6 +172,16 @@ export default function ClientsSection({ accounts, arbs }) {
               <div className="client-account-list">
                 {group.accounts.map((account) => {
                   const isSelected = account.id === selectedAccountId;
+                  const lastDayStats = lastDayAccountStats.get(account.id) || {
+                    count: 0,
+                    profitUsd: 0
+                  };
+                  const resultTone =
+                    lastDayStats.profitUsd > 0
+                      ? "is-profit"
+                      : lastDayStats.profitUsd < 0
+                        ? "is-loss"
+                        : "is-neutral";
 
                   return (
                     <button
@@ -120,6 +199,19 @@ export default function ClientsSection({ accounts, arbs }) {
                         </span>
                       </span>
                       <strong>{formatAccountBalance(account.balance, account.currency)}</strong>
+                      <span className="client-account-activity">
+                        <b>{lastDayStats.count}</b> arbs · {formatShortDate(latestDate)}
+                      </span>
+                      <span className={`client-account-result ${resultTone}`}>
+                        {lastDayStats.count === 0
+                          ? "Sin actividad"
+                          : lastDayStats.profitUsd > 0
+                          ? "Ganado"
+                          : lastDayStats.profitUsd < 0
+                            ? "Perdido"
+                            : "Sin cambio"}
+                        <b>{formatSignedUsd(lastDayStats.profitUsd)}</b>
+                      </span>
                       {account.note ? <small>{account.note}</small> : null}
                     </button>
                   );

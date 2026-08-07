@@ -431,6 +431,39 @@ button:disabled {
   font-size: 1.15rem;
 }
 
+.client-account-activity {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.client-account-activity b {
+  color: var(--blue);
+}
+
+.client-account-result {
+  align-items: center;
+  border-radius: 6px;
+  display: flex;
+  font-size: 0.74rem;
+  justify-content: space-between;
+  padding: 6px 8px;
+}
+
+.client-account-result.is-profit {
+  background: rgba(40, 122, 95, 0.09);
+  color: var(--green);
+}
+
+.client-account-result.is-loss {
+  background: rgba(186, 63, 69, 0.08);
+  color: var(--red);
+}
+
+.client-account-result.is-neutral {
+  background: #f1efe8;
+  color: var(--muted);
+}
+
 .client-account > small {
   color: var(--red);
   font-size: 0.74rem;
