@@ -4,6 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ArbsTable from "@/components/ArbsTable";
 import BookmakerName from "@/components/BookmakerName";
 
+const REPORT_START_DATE = "2026-08-06";
+const REPORT_END_DATE = "2026-08-07";
+
 function formatAccountBalance(value, currency) {
   const amount = new Intl.NumberFormat("es-MX", {
     minimumFractionDigits: 2,
@@ -86,6 +89,10 @@ function formatShortDate(date) {
   return year && month && day ? `${day}/${month}/${year}` : "Sin fecha";
 }
 
+function formatPeriod() {
+  return `${formatShortDate(REPORT_START_DATE)} - ${formatShortDate(REPORT_END_DATE)}`;
+}
+
 export default function ClientsSection({ accounts, arbs }) {
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const resultsRef = useRef(null);
@@ -94,15 +101,6 @@ export default function ClientsSection({ accounts, arbs }) {
   const temporaryCount = accounts.filter((account) => account.status === "TMP").length;
   const offlineCount = accounts.filter((account) => account.status === "OFF").length;
   const selectedAccount = accounts.find((account) => account.id === selectedAccountId) || null;
-  const latestDate = useMemo(
-    () =>
-      arbs.reduce(
-        (latest, arb) =>
-          arb.dateKey !== "Sin fecha" && arb.dateKey > latest ? arb.dateKey : latest,
-        ""
-      ),
-    [arbs]
-  );
 
   const groupedAccounts = useMemo(() => {
     const groups = new Map();
@@ -135,13 +133,15 @@ export default function ClientsSection({ accounts, arbs }) {
     );
   }, [arbs, selectedAccount]);
 
-  const lastDayAccountStats = useMemo(() => {
+  const periodAccountStats = useMemo(() => {
     const stats = new Map(
       accounts.map((account) => [account.id, { count: 0, profitUsd: 0 }])
     );
-    const lastDayArbs = arbs.filter((arb) => arb.dateKey === latestDate);
+    const periodArbs = arbs.filter(
+      (arb) => arb.dateKey >= REPORT_START_DATE && arb.dateKey <= REPORT_END_DATE
+    );
 
-    for (const arb of lastDayArbs) {
+    for (const arb of periodArbs) {
       const participatingAccountIds = new Set();
 
       for (const leg of arb.legs) {
@@ -171,7 +171,7 @@ export default function ClientsSection({ accounts, arbs }) {
         { ...value, profitUsd: Number(value.profitUsd.toFixed(2)) }
       ])
     );
-  }, [accounts, arbs, latestDate]);
+  }, [accounts, arbs]);
 
   useEffect(() => {
     if (selectedAccountId) {
@@ -193,7 +193,7 @@ export default function ClientsSection({ accounts, arbs }) {
           <span className="pre-market-total"><strong>{preMarketCount}</strong> pre market</span>
           <span className="temporary-total"><strong>{temporaryCount}</strong> temporales</span>
           <span className="offline-total"><strong>{offlineCount}</strong> desconectadas</span>
-          <span><strong>{formatShortDate(latestDate)}</strong> último día</span>
+          <span><strong>{formatPeriod()}</strong> periodo</span>
         </div>
       </div>
 
@@ -211,14 +211,14 @@ export default function ClientsSection({ accounts, arbs }) {
                 {group.accounts.map((account) => {
                   const isSelected = account.id === selectedAccountId;
                   const hasEmptyBalance = Number(account.balance) === 0;
-                  const lastDayStats = lastDayAccountStats.get(account.id) || {
+                  const periodStats = periodAccountStats.get(account.id) || {
                     count: 0,
                     profitUsd: 0
                   };
                   const resultTone =
-                    lastDayStats.profitUsd > 0
+                    periodStats.profitUsd > 0
                       ? "is-profit"
-                      : lastDayStats.profitUsd < 0
+                      : periodStats.profitUsd < 0
                         ? "is-loss"
                         : "is-neutral";
 
@@ -242,17 +242,17 @@ export default function ClientsSection({ accounts, arbs }) {
                         <span className="client-empty-warning">Cargar saldo</span>
                       ) : null}
                       <span className="client-account-activity">
-                        <b>{lastDayStats.count}</b> arbs · {formatShortDate(latestDate)}
+                        <b>{periodStats.count}</b> arbs · {formatPeriod()}
                       </span>
                       <span className={`client-account-result ${resultTone}`}>
-                        {lastDayStats.count === 0
+                        {periodStats.count === 0
                           ? "Sin actividad"
-                          : lastDayStats.profitUsd > 0
+                          : periodStats.profitUsd > 0
                           ? "Ganado"
-                          : lastDayStats.profitUsd < 0
+                          : periodStats.profitUsd < 0
                             ? "Perdido"
                             : "Sin cambio"}
-                        <b>{formatSignedUsd(lastDayStats.profitUsd)}</b>
+                        <b>{formatSignedUsd(periodStats.profitUsd)}</b>
                       </span>
                       {account.note ? <small>{account.note}</small> : null}
                     </button>

@@ -90,15 +90,6 @@ export default function WithdrawalsSection({ withdrawals }) {
               <dl className="withdrawal-details">
                 <div><dt>Monto retirado</dt><dd>{selectedWithdrawal.amount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
                 <div><dt>Monto recibido aprox.</dt><dd>{selectedWithdrawal.receivedAmount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
-                <div><dt>Equivalente</dt><dd>{formatMoney(selectedWithdrawal.approximateMxn, "MXN")}</dd></div>
-                <div><dt>Dirección</dt><dd>{selectedWithdrawal.address}</dd></div>
-                <div><dt>Red</dt><dd>{selectedWithdrawal.network}</dd></div>
-                <div><dt>Tiempo estimado</dt><dd>{selectedWithdrawal.estimatedTime}</dd></div>
-                <div><dt>Tipo de cambio</dt><dd>{selectedWithdrawal.exchangeRate}</dd></div>
-                <div><dt>Comisión cambiaria</dt><dd>{formatMoney(selectedWithdrawal.exchangeFeeMxn, "MXN")}</dd></div>
-                <div><dt>Comisión 2%</dt><dd>{formatMoney(selectedWithdrawal.transactionFeeMxn, "MXN")}</dd></div>
-                <div><dt>Comisión de red</dt><dd>{formatMoney(selectedWithdrawal.networkFeeMxn, "MXN")}</dd></div>
-                <div className="withdrawal-spent"><dt>Gasto total</dt><dd>{formatMoney(selectedWithdrawal.totalSpentMxn, "MXN")}</dd></div>
               </dl>
             </div>
           </section>
