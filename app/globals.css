@@ -358,6 +358,12 @@ button:disabled {
   color: var(--amber);
 }
 
+.clients-totals .temporary-total {
+  background: rgba(39, 98, 123, 0.09);
+  border-color: rgba(39, 98, 123, 0.24);
+  color: var(--blue);
+}
+
 .client-booker-grid {
   display: grid;
   gap: 14px;
@@ -423,6 +429,29 @@ button:disabled {
 .client-account.is-pre-market {
   background: rgba(168, 111, 25, 0.045);
   border-color: rgba(168, 111, 25, 0.22);
+}
+
+.client-account.is-temporary {
+  background: rgba(39, 98, 123, 0.045);
+  border-color: rgba(39, 98, 123, 0.22);
+}
+
+.client-account.is-empty-balance {
+  background: rgba(186, 63, 69, 0.09);
+  border-color: var(--red);
+  box-shadow: inset 4px 0 0 var(--red);
+}
+
+.client-account.is-empty-balance > strong {
+  color: var(--red);
+}
+
+.client-empty-warning {
+  color: var(--red);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .client-account-meta {
@@ -523,6 +552,15 @@ button:disabled {
 
 .status-badge.is-pre-market i {
   background: var(--amber);
+}
+
+.status-badge.is-temporary {
+  background: rgba(39, 98, 123, 0.11);
+  color: var(--blue);
+}
+
+.status-badge.is-temporary i {
+  background: var(--blue);
 }
 
 .client-arbs-section {
@@ -827,6 +865,162 @@ button:disabled {
   text-align: center;
 }
 
+.withdrawals-section {
+  display: grid;
+  gap: 16px;
+}
+
+.withdrawals-overview,
+.withdrawal-card,
+.withdrawal-modal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.withdrawals-overview {
+  align-items: center;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding: 22px;
+}
+
+.withdrawals-overview h2,
+.withdrawals-overview p {
+  margin-bottom: 0;
+}
+
+.withdrawals-overview p,
+.withdrawals-total span,
+.withdrawal-card small {
+  color: var(--muted);
+}
+
+.withdrawals-total {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+}
+
+.withdrawals-total strong {
+  color: var(--green);
+  font-size: 1.35rem;
+}
+
+.withdrawals-list {
+  display: grid;
+  gap: 12px;
+}
+
+.withdrawal-card {
+  align-items: center;
+  border-radius: 10px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  padding: 18px;
+  text-align: left;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+.withdrawal-card:hover {
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+
+.withdrawal-card-main,
+.withdrawal-amount {
+  display: grid;
+  gap: 5px;
+}
+
+.withdrawal-amount {
+  text-align: right;
+}
+
+.withdrawal-status {
+  background: #e8f5ed;
+  border: 1px solid #b9dec6;
+  border-radius: 999px;
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 850;
+  padding: 5px 9px;
+  text-transform: uppercase;
+}
+
+.withdrawal-backdrop {
+  align-items: center;
+  background: rgba(22, 26, 29, 0.66);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 30;
+}
+
+.withdrawal-modal {
+  border-radius: 12px;
+  max-height: 92vh;
+  max-width: 1050px;
+  overflow: auto;
+  padding: 22px;
+  width: 100%;
+}
+
+.withdrawal-detail-grid {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+}
+
+.withdrawal-receipt {
+  align-self: start;
+  background: #f6f3ec;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.withdrawal-receipt img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.withdrawal-details {
+  margin: 0;
+}
+
+.withdrawal-details div {
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.withdrawal-details dt {
+  color: var(--muted);
+}
+
+.withdrawal-details dd {
+  font-weight: 750;
+  margin: 0;
+  text-align: right;
+}
+
+.withdrawal-details .withdrawal-spent {
+  border-bottom: 0;
+  color: var(--blue);
+  font-size: 1.05rem;
+}
+
 @media (max-width: 1100px) {
   .stats-grid,
   .insight-grid {
@@ -860,6 +1054,26 @@ button:disabled {
   .clients-overview {
     align-items: start;
     display: grid;
+  }
+
+  .withdrawals-overview,
+  .withdrawal-card {
+    align-items: start;
+    display: grid;
+  }
+
+  .withdrawals-total,
+  .withdrawal-amount {
+    text-align: left;
+  }
+
+  .withdrawal-card,
+  .withdrawal-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .withdrawal-modal {
+    padding: 18px;
   }
 
   .clients-totals {

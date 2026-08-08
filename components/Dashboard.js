@@ -7,10 +7,15 @@ import ClientsSection from "@/components/ClientsSection";
 import DailyChart from "@/components/DailyChart";
 import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
+import WithdrawalsSection from "@/components/WithdrawalsSection";
 import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney, formatMxnAsUsd } from "@/lib/format";
+import { WITHDRAWALS } from "@/lib/withdrawals";
 
-const CURRENT_BALANCE_USD = 4134;
+const CURRENT_BALANCE_USD = CLIENT_ACCOUNTS.reduce(
+  (sum, account) => sum + Number(account.balance || 0),
+  0
+);
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
@@ -140,13 +145,19 @@ export default function Dashboard({ onLogout }) {
 
   const totals = data.totals;
   const lastDay = data.daily[data.daily.length - 1];
+  const viewTitle =
+    activeView === "clients"
+      ? { eyebrow: "Control de cuentas", heading: "Clientes" }
+      : activeView === "withdrawals"
+        ? { eyebrow: "Movimientos", heading: "Retiros" }
+        : { eyebrow: "Closed arbs", heading: "Resumen de resultados" };
 
   return (
     <main className="dashboard-shell">
       <header className="topbar">
         <div>
-          <span className="eyebrow">{activeView === "clients" ? "Control de cuentas" : "Closed arbs"}</span>
-          <h1>{activeView === "clients" ? "Clientes" : "Resumen de resultados"}</h1>
+          <span className="eyebrow">{viewTitle.eyebrow}</span>
+          <h1>{viewTitle.heading}</h1>
         </div>
         <div className="topbar-actions">
           <nav className="view-nav" aria-label="Secciones del dashboard">
@@ -166,6 +177,14 @@ export default function Dashboard({ onLogout }) {
             >
               Clientes
             </button>
+            <button
+              aria-current={activeView === "withdrawals" ? "page" : undefined}
+              className={activeView === "withdrawals" ? "is-active" : ""}
+              onClick={() => setActiveView("withdrawals")}
+              type="button"
+            >
+              Retiros
+            </button>
           </nav>
           <button className="secondary-button" onClick={loadData}>Actualizar</button>
           <button className="ghost-button" onClick={handleLogout}>Salir</button>
@@ -174,6 +193,8 @@ export default function Dashboard({ onLogout }) {
 
       {activeView === "clients" ? (
         <ClientsSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} />
+      ) : activeView === "withdrawals" ? (
+        <WithdrawalsSection withdrawals={WITHDRAWALS} />
       ) : (
         <>
       <section className="stats-grid" aria-label="Metricas principales">

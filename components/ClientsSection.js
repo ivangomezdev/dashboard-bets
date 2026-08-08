@@ -74,6 +74,10 @@ function statusClassName(status) {
     return "is-pre-market";
   }
 
+  if (status === "TMP") {
+    return "is-temporary";
+  }
+
   return "is-offline";
 }
 
@@ -87,6 +91,7 @@ export default function ClientsSection({ accounts, arbs }) {
   const resultsRef = useRef(null);
   const activeCount = accounts.filter((account) => account.status === "ON").length;
   const preMarketCount = accounts.filter((account) => account.status === "PRE MARKET").length;
+  const temporaryCount = accounts.filter((account) => account.status === "TMP").length;
   const offlineCount = accounts.filter((account) => account.status === "OFF").length;
   const selectedAccount = accounts.find((account) => account.id === selectedAccountId) || null;
   const latestDate = useMemo(
@@ -186,6 +191,7 @@ export default function ClientsSection({ accounts, arbs }) {
           <span><strong>{accounts.length}</strong> cuentas</span>
           <span className="active-total"><strong>{activeCount}</strong> activas</span>
           <span className="pre-market-total"><strong>{preMarketCount}</strong> pre market</span>
+          <span className="temporary-total"><strong>{temporaryCount}</strong> temporales</span>
           <span className="offline-total"><strong>{offlineCount}</strong> desconectadas</span>
           <span><strong>{formatShortDate(latestDate)}</strong> último día</span>
         </div>
@@ -204,6 +210,7 @@ export default function ClientsSection({ accounts, arbs }) {
               <div className="client-account-list">
                 {group.accounts.map((account) => {
                   const isSelected = account.id === selectedAccountId;
+                  const hasEmptyBalance = Number(account.balance) === 0;
                   const lastDayStats = lastDayAccountStats.get(account.id) || {
                     count: 0,
                     profitUsd: 0
@@ -218,7 +225,7 @@ export default function ClientsSection({ accounts, arbs }) {
                   return (
                     <button
                       aria-pressed={isSelected}
-                      className={`client-account ${statusClassName(account.status)} ${isSelected ? "is-selected" : ""}`}
+                      className={`client-account ${statusClassName(account.status)} ${hasEmptyBalance ? "is-empty-balance" : ""} ${isSelected ? "is-selected" : ""}`}
                       key={account.id}
                       onClick={() => setSelectedAccountId(account.id)}
                       type="button"
@@ -231,6 +238,9 @@ export default function ClientsSection({ accounts, arbs }) {
                         </span>
                       </span>
                       <strong>{formatAccountBalance(account.balance, account.currency)}</strong>
+                      {hasEmptyBalance ? (
+                        <span className="client-empty-warning">Cargar saldo</span>
+                      ) : null}
                       <span className="client-account-activity">
                         <b>{lastDayStats.count}</b> arbs · {formatShortDate(latestDate)}
                       </span>
