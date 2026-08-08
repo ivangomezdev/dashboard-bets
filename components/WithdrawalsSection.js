@@ -40,7 +40,7 @@ export default function WithdrawalsSection({ withdrawals }) {
           >
             <span className="withdrawal-card-main">
               <BookmakerName name={withdrawal.bookmaker} />
-              <small>{formatDate(withdrawal.date)}</small>
+              <small>{withdrawal.vps} · {formatDate(withdrawal.date)}</small>
             </span>
             <span className="withdrawal-amount">
               <strong>{withdrawal.amount.toFixed(2)} {withdrawal.currency}</strong>
@@ -68,7 +68,7 @@ export default function WithdrawalsSection({ withdrawals }) {
               <div>
                 <span className="eyebrow">Comprobante de retiro</span>
                 <h2 id="withdrawal-detail-title">
-                  {selectedWithdrawal.bookmaker} · {formatDate(selectedWithdrawal.date)}
+                  {selectedWithdrawal.bookmaker} · {selectedWithdrawal.vps} · {formatDate(selectedWithdrawal.date)}
                 </h2>
               </div>
               <button
@@ -88,7 +88,8 @@ export default function WithdrawalsSection({ withdrawals }) {
                 />
               </div>
               <dl className="withdrawal-details">
-                <div><dt>Monto recibido</dt><dd>{selectedWithdrawal.amount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
+                <div><dt>Monto retirado</dt><dd>{selectedWithdrawal.amount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
+                <div><dt>Monto recibido aprox.</dt><dd>{selectedWithdrawal.receivedAmount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
                 <div><dt>Equivalente</dt><dd>{formatMoney(selectedWithdrawal.approximateMxn, "MXN")}</dd></div>
                 <div><dt>Dirección</dt><dd>{selectedWithdrawal.address}</dd></div>
                 <div><dt>Red</dt><dd>{selectedWithdrawal.network}</dd></div>
