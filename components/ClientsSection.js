@@ -5,7 +5,6 @@ import ArbsTable from "@/components/ArbsTable";
 import BookmakerName from "@/components/BookmakerName";
 
 const REPORT_START_DATE = "2026-08-06";
-const REPORT_END_DATE = "2026-08-07";
 
 function formatAccountBalance(value, currency) {
   const amount = new Intl.NumberFormat("es-MX", {
@@ -81,6 +80,10 @@ function statusClassName(status) {
     return "is-temporary";
   }
 
+  if (status === "BLK") {
+    return "is-blocked";
+  }
+
   return "is-offline";
 }
 
@@ -89,8 +92,8 @@ function formatShortDate(date) {
   return year && month && day ? `${day}/${month}/${year}` : "Sin fecha";
 }
 
-function formatPeriod() {
-  return `${formatShortDate(REPORT_START_DATE)} - ${formatShortDate(REPORT_END_DATE)}`;
+function formatPeriod(endDate) {
+  return `${formatShortDate(REPORT_START_DATE)} - ${formatShortDate(endDate)}`;
 }
 
 export default function ClientsSection({ accounts, arbs }) {
@@ -99,8 +102,18 @@ export default function ClientsSection({ accounts, arbs }) {
   const activeCount = accounts.filter((account) => account.status === "ON").length;
   const preMarketCount = accounts.filter((account) => account.status === "PRE MARKET").length;
   const temporaryCount = accounts.filter((account) => account.status === "TMP").length;
+  const blockedCount = accounts.filter((account) => account.status === "BLK").length;
   const offlineCount = accounts.filter((account) => account.status === "OFF").length;
   const selectedAccount = accounts.find((account) => account.id === selectedAccountId) || null;
+  const reportEndDate = useMemo(
+    () =>
+      arbs.reduce(
+        (latest, arb) =>
+          arb.dateKey >= REPORT_START_DATE && arb.dateKey > latest ? arb.dateKey : latest,
+        REPORT_START_DATE
+      ),
+    [arbs]
+  );
 
   const groupedAccounts = useMemo(() => {
     const groups = new Map();
@@ -138,7 +151,7 @@ export default function ClientsSection({ accounts, arbs }) {
       accounts.map((account) => [account.id, { count: 0, profitUsd: 0 }])
     );
     const periodArbs = arbs.filter(
-      (arb) => arb.dateKey >= REPORT_START_DATE && arb.dateKey <= REPORT_END_DATE
+      (arb) => arb.dateKey >= REPORT_START_DATE && arb.dateKey <= reportEndDate
     );
 
     for (const arb of periodArbs) {
@@ -171,7 +184,7 @@ export default function ClientsSection({ accounts, arbs }) {
         { ...value, profitUsd: Number(value.profitUsd.toFixed(2)) }
       ])
     );
-  }, [accounts, arbs]);
+  }, [accounts, arbs, reportEndDate]);
 
   useEffect(() => {
     if (selectedAccountId) {
@@ -192,8 +205,9 @@ export default function ClientsSection({ accounts, arbs }) {
           <span className="active-total"><strong>{activeCount}</strong> activas</span>
           <span className="pre-market-total"><strong>{preMarketCount}</strong> pre market</span>
           <span className="temporary-total"><strong>{temporaryCount}</strong> temporales</span>
+          <span className="blocked-total"><strong>{blockedCount}</strong> bloqueadas</span>
           <span className="offline-total"><strong>{offlineCount}</strong> desconectadas</span>
-          <span><strong>{formatPeriod()}</strong> periodo</span>
+          <span><strong>{formatPeriod(reportEndDate)}</strong> periodo</span>
         </div>
       </div>
 
@@ -242,7 +256,7 @@ export default function ClientsSection({ accounts, arbs }) {
                         <span className="client-empty-warning">Cargar saldo</span>
                       ) : null}
                       <span className="client-account-activity">
-                        <b>{periodStats.count}</b> arbs · {formatPeriod()}
+                        <b>{periodStats.count}</b> arbs · {formatPeriod(reportEndDate)}
                       </span>
                       <span className={`client-account-result ${resultTone}`}>
                         {periodStats.count === 0

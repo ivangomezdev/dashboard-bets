@@ -364,6 +364,12 @@ button:disabled {
   color: var(--blue);
 }
 
+.clients-totals .blocked-total {
+  background: rgba(186, 63, 69, 0.08);
+  border-color: rgba(186, 63, 69, 0.2);
+  color: var(--red);
+}
+
 .client-booker-grid {
   display: grid;
   gap: 14px;
@@ -434,6 +440,11 @@ button:disabled {
 .client-account.is-temporary {
   background: rgba(39, 98, 123, 0.045);
   border-color: rgba(39, 98, 123, 0.22);
+}
+
+.client-account.is-blocked {
+  background: rgba(186, 63, 69, 0.045);
+  border-color: rgba(186, 63, 69, 0.34);
 }
 
 .client-account.is-empty-balance {
@@ -561,6 +572,15 @@ button:disabled {
 
 .status-badge.is-temporary i {
   background: var(--blue);
+}
+
+.status-badge.is-blocked {
+  background: rgba(186, 63, 69, 0.1);
+  color: var(--red);
+}
+
+.status-badge.is-blocked i {
+  background: var(--red);
 }
 
 .client-arbs-section {
