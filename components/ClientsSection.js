@@ -34,10 +34,10 @@ function normalizeVps(value) {
 }
 
 function matchesBooker(accountBooker, legBooker) {
-  const accountKey = normalizeBooker(accountBooker);
-  const legKey = normalizeBooker(legBooker);
+  const accountKey = normalizeBooker(accountBooker).replace(/(?:fallback|hedge)$/, "");
+  const legKey = normalizeBooker(legBooker).replace(/(?:fallback|hedge)$/, "");
 
-  return accountKey === legKey || accountKey.includes(legKey) || legKey.includes(accountKey);
+  return accountKey === legKey;
 }
 
 function accountMatchesLeg(account, leg, accounts) {
