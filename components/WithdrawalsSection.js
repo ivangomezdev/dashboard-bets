@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import BookmakerName from "@/components/BookmakerName";
-import { formatMoney } from "@/lib/format";
 
 function formatDate(date) {
   const [year, month, day] = String(date || "").split("-");
@@ -11,10 +10,12 @@ function formatDate(date) {
 
 export default function WithdrawalsSection({ withdrawals }) {
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
-  const totalUsdt = withdrawals.reduce(
-    (sum, withdrawal) => sum + Number(withdrawal.amount || 0),
-    0
-  );
+  const withdrawalCount = withdrawals.filter(
+    (movement) => movement.movementType === "Retiro"
+  ).length;
+  const paymentCount = withdrawals.filter(
+    (movement) => movement.movementType === "Pago"
+  ).length;
 
   return (
     <section className="withdrawals-section" aria-labelledby="withdrawals-title">
@@ -22,11 +23,11 @@ export default function WithdrawalsSection({ withdrawals }) {
         <div>
           <span className="eyebrow">Historial de movimientos</span>
           <h2 id="withdrawals-title">Retiros</h2>
-          <p>Selecciona un retiro para consultar su comprobante y desglose.</p>
+          <p>Selecciona un movimiento para consultar su comprobante.</p>
         </div>
         <div className="withdrawals-total">
-          <span>{withdrawals.length} retiro</span>
-          <strong>{formatMoney(totalUsdt, "USDT")}</strong>
+          <span>{withdrawals.length} movimientos</span>
+          <strong>{withdrawalCount} retiros · {paymentCount} pago</strong>
         </div>
       </div>
 
@@ -46,7 +47,9 @@ export default function WithdrawalsSection({ withdrawals }) {
               <strong>{withdrawal.amount.toFixed(2)} {withdrawal.currency}</strong>
               <small>Ver comprobante</small>
             </span>
-            <span className="withdrawal-status">{withdrawal.status}</span>
+            <span className={`withdrawal-status ${withdrawal.movementType === "Pago" ? "is-payment" : ""}`}>
+              {withdrawal.movementType}
+            </span>
           </button>
         ))}
       </div>
@@ -66,7 +69,7 @@ export default function WithdrawalsSection({ withdrawals }) {
           >
             <div className="panel-heading">
               <div>
-                <span className="eyebrow">Comprobante de retiro</span>
+                <span className="eyebrow">Comprobante de {selectedWithdrawal.movementType.toLowerCase()}</span>
                 <h2 id="withdrawal-detail-title">
                   {selectedWithdrawal.bookmaker} · {selectedWithdrawal.vps} · {formatDate(selectedWithdrawal.date)}
                 </h2>
@@ -83,13 +86,18 @@ export default function WithdrawalsSection({ withdrawals }) {
             <div className="withdrawal-detail-grid">
               <div className="withdrawal-receipt">
                 <img
-                  alt={`Comprobante del retiro de ${selectedWithdrawal.bookmaker}`}
+                  alt={`Comprobante de ${selectedWithdrawal.movementType.toLowerCase()} de ${selectedWithdrawal.bookmaker}`}
                   src={selectedWithdrawal.receiptImage}
                 />
               </div>
               <dl className="withdrawal-details">
-                <div><dt>Monto retirado</dt><dd>{selectedWithdrawal.amount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
-                <div><dt>Monto recibido aprox.</dt><dd>{selectedWithdrawal.receivedAmount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
+                <div>
+                  <dt>{selectedWithdrawal.movementType === "Pago" ? "Monto pagado" : "Monto retirado"}</dt>
+                  <dd>{selectedWithdrawal.amount.toFixed(2)} {selectedWithdrawal.currency}</dd>
+                </div>
+                {selectedWithdrawal.receivedAmount !== undefined ? (
+                  <div><dt>Monto recibido aprox.</dt><dd>{selectedWithdrawal.receivedAmount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
+                ) : null}
               </dl>
             </div>
           </section>
