@@ -978,6 +978,12 @@ button:disabled {
   color: var(--blue);
 }
 
+.withdrawal-status.is-deposit {
+  background: rgba(168, 111, 25, 0.11);
+  border-color: rgba(168, 111, 25, 0.25);
+  color: var(--amber);
+}
+
 .withdrawal-backdrop {
   align-items: center;
   background: rgba(22, 26, 29, 0.66);
@@ -1002,6 +1008,10 @@ button:disabled {
   display: grid;
   gap: 22px;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+}
+
+.withdrawal-detail-grid.is-details-only {
+  grid-template-columns: minmax(0, 520px);
 }
 
 .withdrawal-receipt {

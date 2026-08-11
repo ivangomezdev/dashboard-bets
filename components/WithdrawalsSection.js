@@ -16,6 +16,9 @@ export default function WithdrawalsSection({ withdrawals }) {
   const paymentCount = withdrawals.filter(
     (movement) => movement.movementType === "Pago"
   ).length;
+  const depositCount = withdrawals.filter(
+    (movement) => movement.movementType === "Depósito"
+  ).length;
 
   return (
     <section className="withdrawals-section" aria-labelledby="withdrawals-title">
@@ -27,7 +30,7 @@ export default function WithdrawalsSection({ withdrawals }) {
         </div>
         <div className="withdrawals-total">
           <span>{withdrawals.length} movimientos</span>
-          <strong>{withdrawalCount} retiros · {paymentCount} pago</strong>
+          <strong>{withdrawalCount} retiros · {paymentCount} pago · {depositCount} depósito</strong>
         </div>
       </div>
 
@@ -45,9 +48,9 @@ export default function WithdrawalsSection({ withdrawals }) {
             </span>
             <span className="withdrawal-amount">
               <strong>{withdrawal.amount.toFixed(2)} {withdrawal.currency}</strong>
-              <small>Ver comprobante</small>
+              <small>{withdrawal.receiptImage ? "Ver comprobante" : "Ver detalle"}</small>
             </span>
-            <span className={`withdrawal-status ${withdrawal.movementType === "Pago" ? "is-payment" : ""}`}>
+            <span className={`withdrawal-status ${withdrawal.movementType === "Pago" ? "is-payment" : ""} ${withdrawal.movementType === "Depósito" ? "is-deposit" : ""}`}>
               {withdrawal.movementType}
             </span>
           </button>
@@ -69,7 +72,9 @@ export default function WithdrawalsSection({ withdrawals }) {
           >
             <div className="panel-heading">
               <div>
-                <span className="eyebrow">Comprobante de {selectedWithdrawal.movementType.toLowerCase()}</span>
+                <span className="eyebrow">
+                  {selectedWithdrawal.receiptImage ? "Comprobante" : "Detalle"} de {selectedWithdrawal.movementType.toLowerCase()}
+                </span>
                 <h2 id="withdrawal-detail-title">
                   {selectedWithdrawal.bookmaker} · {selectedWithdrawal.vps} · {formatDate(selectedWithdrawal.date)}
                 </h2>
@@ -83,16 +88,24 @@ export default function WithdrawalsSection({ withdrawals }) {
               </button>
             </div>
 
-            <div className="withdrawal-detail-grid">
-              <div className="withdrawal-receipt">
-                <img
-                  alt={`Comprobante de ${selectedWithdrawal.movementType.toLowerCase()} de ${selectedWithdrawal.bookmaker}`}
-                  src={selectedWithdrawal.receiptImage}
-                />
-              </div>
+            <div className={`withdrawal-detail-grid ${selectedWithdrawal.receiptImage ? "" : "is-details-only"}`}>
+              {selectedWithdrawal.receiptImage ? (
+                <div className="withdrawal-receipt">
+                  <img
+                    alt={`Comprobante de ${selectedWithdrawal.movementType.toLowerCase()} de ${selectedWithdrawal.bookmaker}`}
+                    src={selectedWithdrawal.receiptImage}
+                  />
+                </div>
+              ) : null}
               <dl className="withdrawal-details">
                 <div>
-                  <dt>{selectedWithdrawal.movementType === "Pago" ? "Monto pagado" : "Monto retirado"}</dt>
+                  <dt>
+                    {selectedWithdrawal.movementType === "Pago"
+                      ? "Monto pagado"
+                      : selectedWithdrawal.movementType === "Depósito"
+                        ? "Monto depositado"
+                        : "Monto retirado"}
+                  </dt>
                   <dd>{selectedWithdrawal.amount.toFixed(2)} {selectedWithdrawal.currency}</dd>
                 </div>
                 {selectedWithdrawal.receivedAmount !== undefined ? (
