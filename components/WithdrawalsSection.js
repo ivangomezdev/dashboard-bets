@@ -109,7 +109,10 @@ export default function WithdrawalsSection({ withdrawals }) {
                   <dd>{selectedWithdrawal.amount.toFixed(2)} {selectedWithdrawal.currency}</dd>
                 </div>
                 {selectedWithdrawal.receivedAmount !== undefined ? (
-                  <div><dt>Monto recibido aprox.</dt><dd>{selectedWithdrawal.receivedAmount.toFixed(2)} {selectedWithdrawal.currency}</dd></div>
+                  <div>
+                    <dt>Monto recibido aprox.</dt>
+                    <dd>{selectedWithdrawal.receivedAmount.toFixed(2)} {selectedWithdrawal.receivedCurrency || selectedWithdrawal.currency}</dd>
+                  </div>
                 ) : null}
               </dl>
             </div>
