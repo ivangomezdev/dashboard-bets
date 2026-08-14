@@ -7,6 +7,7 @@ import ClientsSection from "@/components/ClientsSection";
 import DailyChart from "@/components/DailyChart";
 import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
+import TotalizedSection from "@/components/TotalizedSection";
 import WithdrawalsSection from "@/components/WithdrawalsSection";
 import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney, formatMxnAsUsd } from "@/lib/format";
@@ -148,6 +149,8 @@ export default function Dashboard({ onLogout }) {
   const viewTitle =
     activeView === "clients"
       ? { eyebrow: "Control de cuentas", heading: "Clientes" }
+      : activeView === "totalized"
+        ? { eyebrow: "Resultados consolidados", heading: "Totalizado" }
       : activeView === "withdrawals"
         ? { eyebrow: "Movimientos", heading: "Retiros" }
         : { eyebrow: "Closed arbs", heading: "Resumen de resultados" };
@@ -178,6 +181,14 @@ export default function Dashboard({ onLogout }) {
               Clientes
             </button>
             <button
+              aria-current={activeView === "totalized" ? "page" : undefined}
+              className={activeView === "totalized" ? "is-active" : ""}
+              onClick={() => setActiveView("totalized")}
+              type="button"
+            >
+              Totalizado
+            </button>
+            <button
               aria-current={activeView === "withdrawals" ? "page" : undefined}
               className={activeView === "withdrawals" ? "is-active" : ""}
               onClick={() => setActiveView("withdrawals")}
@@ -193,6 +204,8 @@ export default function Dashboard({ onLogout }) {
 
       {activeView === "clients" ? (
         <ClientsSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} />
+      ) : activeView === "totalized" ? (
+        <TotalizedSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} />
       ) : activeView === "withdrawals" ? (
         <WithdrawalsSection withdrawals={WITHDRAWALS} />
       ) : (
