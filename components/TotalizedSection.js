@@ -20,6 +20,10 @@ function matchesBooker(accountBooker, legBooker) {
 }
 
 function accountMatchesLeg(account, leg, accounts) {
+  if (leg.outcome === "not_placed") {
+    return false;
+  }
+
   if (!matchesBooker(account.booker, leg.bookerBase || leg.booker)) {
     return false;
   }
