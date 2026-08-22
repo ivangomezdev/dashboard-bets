@@ -125,6 +125,11 @@ export default function ArbsTable({ arbs }) {
                             </small>
                           </div>
                         ))}
+                        {arb.reason && !/^verificacion periodica/i.test(arb.reason) ? (
+                          <div className="arb-reason">
+                            <strong>Motivo:</strong> {arb.reason}
+                          </div>
+                        ) : null}
                       </div>
                     </details>
                   </td>

@@ -233,6 +233,10 @@ export default function Dashboard({ onLogout }) {
           <section className="work-panel">
             <span className="eyebrow">Roadmap</span>
             <h2>CONFIGURANDO VPS Y CARGANDO CUENTAS</h2>
+            <p>
+              <strong>21/08 · Implementación de socket</strong><br />
+              Incidencia detectada: Polymarket no colocó la apuesta de Tigres–Atlante durante la implementación.
+            </p>
           </section>
         </div>
         <BookersPanel bookers={data.bookers} />

@@ -860,6 +860,16 @@ button:disabled {
   padding: 10px;
 }
 
+.arb-reason {
+  background: rgba(186, 63, 69, 0.08);
+  border: 1px solid rgba(186, 63, 69, 0.2);
+  border-radius: 8px;
+  color: #8f2f35;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  padding: 10px;
+}
+
 .leg-bookmaker {
   color: var(--blue);
   font-size: 0.78rem;
