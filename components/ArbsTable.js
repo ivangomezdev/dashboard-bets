@@ -136,7 +136,7 @@ export default function ArbsTable({ arbs }) {
                   <td>{arb.market}</td>
                   <td>{formatMxnAsUsd(arb.totalStakeMxn)}</td>
                   <td>{formatMxnAsUsd(arb.payoutMxn)}</td>
-                  <td className={profitClass(arb.profitMxn)}>{formatMxnAsUsd(arb.profitMxn)}</td>
+                  <td className={profitClass(arb.profitUsd)}>{formatMoney(arb.profitUsd, "USD")}</td>
                   <td><BookmakerName name={arb.winningBooker} /></td>
                 </tr>
               );

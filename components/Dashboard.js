@@ -10,7 +10,7 @@ import StatCard from "@/components/StatCard";
 import TotalizedSection from "@/components/TotalizedSection";
 import WithdrawalsSection from "@/components/WithdrawalsSection";
 import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
-import { formatMoney, formatMxnAsUsd } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
 const CURRENT_BALANCE_USD = CLIENT_ACCOUNTS.reduce(
@@ -219,7 +219,7 @@ export default function Dashboard({ onLogout }) {
         />
         <StatCard label="Stake total" value={formatCompactMxn(totals.totalStakeMxn)} detail="Apostado total" />
         <StatCard label="Arbs resueltos" value={totals.totalArbs} detail={`${totals.positive} positivos - ${totals.negative} negativos`} />
-        <StatCard label="Dia mas reciente" value={lastDay ? formatMxnAsUsd(lastDay.profitMxn) : "$0.00"} detail={lastDay ? `${lastDay.date} - ${lastDay.count} arbs` : "Sin datos"} tone={lastDay?.profitMxn >= 0 ? "good" : "bad"} />
+        <StatCard label="Dia mas reciente" value={lastDay ? formatMoney(lastDay.profitUsd, "USD") : "$0.00"} detail={lastDay ? `${lastDay.date} - ${lastDay.count} arbs` : "Sin datos"} tone={lastDay?.profitUsd >= 0 ? "good" : "bad"} />
         <button className="stat-card clients-card" type="button" onClick={() => setActiveView("clients")}>
           <span>Clientes disponibles</span>
           <strong>{ACTIVE_CLIENT_COUNT}</strong>

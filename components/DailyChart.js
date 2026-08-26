@@ -60,7 +60,7 @@ export default function DailyChart({ daily }) {
     .slice(-13)
     .map((day) => ({
       ...day,
-      profitUsd: DAILY_RESULT_OVERRIDES_USD[day.date] ?? mxnToUsd(day.profitMxn)
+      profitUsd: DAILY_RESULT_OVERRIDES_USD[day.date] ?? day.profitUsd ?? mxnToUsd(day.profitMxn)
     }));
 
   return (
