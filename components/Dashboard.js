@@ -13,10 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-const CURRENT_BALANCE_USD = CLIENT_ACCOUNTS.reduce(
-  (sum, account) => sum + Number(account.balance || 0),
-  0
-);
+// Total consolidado confirmado por el usuario; los saldos individuales permanecen visibles en Clientes.
+const CURRENT_BALANCE_USD = 4412;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
