@@ -57,7 +57,7 @@ export default function DailyChart({ daily }) {
     ...configurationDays
   ]
     .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(-13)
+    .slice(-11)
     .map((day) => ({
       ...day,
       profitUsd: DAILY_RESULT_OVERRIDES_USD[day.date] ?? day.profitUsd ?? mxnToUsd(day.profitMxn)
