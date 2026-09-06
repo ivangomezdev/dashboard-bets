@@ -14,7 +14,7 @@ import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
 // Total consolidado confirmado por el usuario; los saldos individuales permanecen visibles en Clientes.
-const CURRENT_BALANCE_USD = 4412;
+const CURRENT_BALANCE_USD = 5491;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
