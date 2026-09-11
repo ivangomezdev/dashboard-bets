@@ -47,7 +47,7 @@ export default function WithdrawalsSection({ withdrawals }) {
               <small>{withdrawal.vps} · {formatDate(withdrawal.date)}</small>
             </span>
             <span className="withdrawal-amount">
-              <strong>{withdrawal.amount.toFixed(2)} {withdrawal.currency}</strong>
+              <strong>{withdrawal.movementType === "Pago" ? "−" : withdrawal.movementType === "Depósito" ? "+" : ""}{withdrawal.amount.toFixed(2)} {withdrawal.currency}</strong>
               <small>{withdrawal.receiptImage ? "Ver comprobante" : "Ver detalle"}</small>
             </span>
             <span className={`withdrawal-status ${withdrawal.movementType === "Pago" ? "is-payment" : ""} ${withdrawal.movementType === "Depósito" ? "is-deposit" : ""}`}>
