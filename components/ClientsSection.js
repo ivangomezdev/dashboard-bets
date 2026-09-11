@@ -229,7 +229,6 @@ export default function ClientsSection({ accounts, arbs }) {
               <div className="client-account-list">
                 {group.accounts.map((account) => {
                   const isSelected = account.id === selectedAccountId;
-                  const hasEmptyBalance = account.balance != null && Number(account.balance) === 0;
                   const periodStats = periodAccountStats.get(account.id) || {
                     count: 0,
                     profitUsd: 0
@@ -244,7 +243,7 @@ export default function ClientsSection({ accounts, arbs }) {
                   return (
                     <button
                       aria-pressed={isSelected}
-                      className={`client-account ${statusClassName(account.status)} ${hasEmptyBalance ? "is-empty-balance" : ""} ${isSelected ? "is-selected" : ""}`}
+                      className={`client-account ${statusClassName(account.status)} ${isSelected ? "is-selected" : ""}`}
                       key={account.id}
                       onClick={() => setSelectedAccountId(account.id)}
                       type="button"
@@ -253,13 +252,9 @@ export default function ClientsSection({ accounts, arbs }) {
                         <span>{account.vps}</span>
                         <span className={`status-badge ${statusClassName(account.status)}`}>
                           <i aria-hidden="true" />
-                          {account.status}
+                          {account.status === "BLK" ? "Bloqueada" : account.status}
                         </span>
                       </span>
-                      <strong>{formatAccountBalance(account.balance, account.currency)}</strong>
-                      {hasEmptyBalance ? (
-                        <span className="client-empty-warning">Cargar saldo</span>
-                      ) : null}
                       <span className="client-account-activity">
                         <b>{periodStats.count}</b> arbs · {formatPeriod(reportEndDate)}
                       </span>
@@ -273,7 +268,6 @@ export default function ClientsSection({ accounts, arbs }) {
                             : "Sin cambio"}
                         <b>{formatSignedUsd(periodStats.profitUsd)}</b>
                       </span>
-                      {account.note ? <small>{account.note}</small> : null}
                     </button>
                   );
                 })}
