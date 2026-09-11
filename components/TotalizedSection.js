@@ -62,6 +62,7 @@ function formatSignedUsd(value) {
 }
 
 function formatBalance(value, currency) {
+  if (value == null) return "Sin saldo registrado";
   return `${Number(value || 0).toFixed(2)} ${String(currency || "").toUpperCase()}`;
 }
 

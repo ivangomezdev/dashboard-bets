@@ -7,6 +7,7 @@ import BookmakerName from "@/components/BookmakerName";
 const REPORT_START_DATE = "2026-08-06";
 
 function formatAccountBalance(value, currency) {
+  if (value == null) return "Sin saldo registrado";
   const amount = new Intl.NumberFormat("es-MX", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -228,7 +229,7 @@ export default function ClientsSection({ accounts, arbs }) {
               <div className="client-account-list">
                 {group.accounts.map((account) => {
                   const isSelected = account.id === selectedAccountId;
-                  const hasEmptyBalance = Number(account.balance) === 0;
+                  const hasEmptyBalance = account.balance != null && Number(account.balance) === 0;
                   const periodStats = periodAccountStats.get(account.id) || {
                     count: 0,
                     profitUsd: 0
