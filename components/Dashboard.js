@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo base al 16/09/2026: 10157.65 USD + ganancias del 17 al 23/09: 574.78 USD.
-const CURRENT_BALANCE_USD = 10732.43;
+// Saldo actual confirmado por el usuario: 10221 USD.
+const CURRENT_BALANCE_USD = 10221;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
