@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ArbsTable from "@/components/ArbsTable";
 import BookmakerName from "@/components/BookmakerName";
 
-const REPORT_START_DATE = "2026-08-06";
+import { REPORT_START_DATE, accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "@/lib/accountReporting";
 
 function formatAccountBalance(value, currency) {
   if (value == null) return "Sin saldo registrado";
@@ -26,50 +26,6 @@ function normalizeBooker(value) {
   return String(value || "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "");
-}
-
-function normalizeVps(value) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "");
-}
-
-function matchesBooker(accountBooker, legBooker) {
-  const accountKey = normalizeBooker(accountBooker).replace(/(?:fallback|hedge)$/, "");
-  const legKey = normalizeBooker(legBooker).replace(/(?:fallback|hedge)$/, "");
-
-  return accountKey === legKey;
-}
-
-function accountMatchesLeg(account, leg, accounts) {
-  if (leg.outcome === "not_placed") {
-    return false;
-  }
-
-  if (!matchesBooker(account.booker, leg.bookerBase || leg.booker)) {
-    return false;
-  }
-
-  const legVps = normalizeVps(leg.vps);
-
-  if (legVps) {
-    return normalizeVps(account.vps) === legVps;
-  }
-
-  const bookerAccounts = accounts.filter((candidate) =>
-    matchesBooker(candidate.booker, leg.bookerBase || leg.booker)
-  );
-
-  if (bookerAccounts.length === 1) {
-    return bookerAccounts[0].id === account.id;
-  }
-
-  const currencyAccounts = bookerAccounts.filter(
-    (candidate) =>
-      String(candidate.currency).toUpperCase() === String(leg.currency).toUpperCase()
-  );
-
-  return currencyAccounts.length === 1 && currencyAccounts[0].id === account.id;
 }
 
 function statusClassName(status) {
@@ -109,16 +65,9 @@ export default function ClientsSection({ accounts, arbs }) {
   const temporaryCount = accounts.filter((account) => account.status === "TMP").length;
   const blockedCount = accounts.filter((account) => account.status === "BLK").length;
   const offlineCount = accounts.filter((account) => account.status === "OFF").length;
+  const unconfirmedCount = accounts.filter((account) => account.status === "SIN CONFIRMAR").length;
   const selectedAccount = accounts.find((account) => account.id === selectedAccountId) || null;
-  const reportEndDate = useMemo(
-    () =>
-      arbs.reduce(
-        (latest, arb) =>
-          arb.dateKey >= REPORT_START_DATE && arb.dateKey > latest ? arb.dateKey : latest,
-        REPORT_START_DATE
-      ),
-    [arbs]
-  );
+  const reportEndDate = useMemo(() => getReportEndDate(arbs), [arbs]);
 
   const groupedAccounts = useMemo(() => {
     const groups = new Map();
@@ -140,56 +89,12 @@ export default function ClientsSection({ accounts, arbs }) {
       return [];
     }
 
-    const selectedVps = normalizeVps(selectedAccount.vps);
-
-    return arbs.filter((arb) =>
-      arb.legs.some(
-        (leg) =>
-          normalizeVps(leg.vps) === selectedVps &&
-          matchesBooker(selectedAccount.booker, leg.bookerBase || leg.booker)
-      )
+    return getPeriodArbs(arbs).filter((arb) =>
+      arb.legs.some((leg) => accountMatchesLeg(selectedAccount, leg, accounts))
     );
-  }, [arbs, selectedAccount]);
+  }, [accounts, arbs, selectedAccount]);
 
-  const periodAccountStats = useMemo(() => {
-    const stats = new Map(
-      accounts.map((account) => [account.id, { count: 0, profitUsd: 0 }])
-    );
-    const periodArbs = arbs.filter(
-      (arb) => arb.dateKey >= REPORT_START_DATE && arb.dateKey <= reportEndDate
-    );
-
-    for (const arb of periodArbs) {
-      const participatingAccountIds = new Set();
-
-      for (const leg of arb.legs) {
-        for (const account of accounts) {
-          if (accountMatchesLeg(account, leg, accounts)) {
-            participatingAccountIds.add(account.id);
-          }
-        }
-      }
-
-      if (!participatingAccountIds.size) {
-        continue;
-      }
-
-      const allocatedProfitUsd = Number(arb.profitUsd || 0) / participatingAccountIds.size;
-
-      for (const accountId of participatingAccountIds) {
-        const current = stats.get(accountId);
-        current.count += 1;
-        current.profitUsd += allocatedProfitUsd;
-      }
-    }
-
-    return new Map(
-      Array.from(stats, ([accountId, value]) => [
-        accountId,
-        { ...value, profitUsd: Number(value.profitUsd.toFixed(2)) }
-      ])
-    );
-  }, [accounts, arbs, reportEndDate]);
+  const periodAccountStats = useMemo(() => getAccountStats(accounts, arbs), [accounts, arbs]);
 
   useEffect(() => {
     if (selectedAccountId) {
@@ -212,6 +117,7 @@ export default function ClientsSection({ accounts, arbs }) {
           <span className="temporary-total"><strong>{temporaryCount}</strong> temporales</span>
           <span className="blocked-total"><strong>{blockedCount}</strong> bloqueadas</span>
           <span className="offline-total"><strong>{offlineCount}</strong> desconectadas</span>
+          {unconfirmedCount > 0 && <span><strong>{unconfirmedCount}</strong> sin estado confirmado</span>}
           <span><strong>{formatPeriod(reportEndDate)}</strong> periodo</span>
         </div>
       </div>
