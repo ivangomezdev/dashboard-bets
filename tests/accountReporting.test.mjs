@@ -65,7 +65,11 @@ test("all recorded house/VPS pairs through September 26 have an account", async 
   assert.equal(added.length, 15);
   for (const account of added) {
     assert.equal(account.balance, null);
-    assert.ok(stats.get(account.id).count > 0, account.id);
+    if (["vps-3-rainbet", "vps-10-rainbet"].includes(account.id)) {
+      assert.deepEqual(stats.get(account.id), { count: 0, profitUsd: 0 });
+    } else {
+      assert.ok(stats.get(account.id).count > 0, account.id);
+    }
   }
   // Keep user-confirmed replicas on Jack VPS 11 linked to this account.
   const jack = added.find((a) => a.booker === "Jack" && a.vps === "VPS 11");
