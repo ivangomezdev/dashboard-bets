@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo confirmado de 10301.65 + ganancia del 25/09 de 57.83, sumada por indicacion del usuario.
-const CURRENT_BALANCE_USD = 10359.48;
+// Saldo previo de 10359.48 + 81 del 26/09, por indicacion del usuario.
+const CURRENT_BALANCE_USD = 10440.48;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");

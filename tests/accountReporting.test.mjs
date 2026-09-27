@@ -4,17 +4,18 @@ import { CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
 import { accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
 
-test("excludes September 26 from activity, profit and report end date", () => {
+test("excludes September 27 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
   const leg = { bookerBase: "jack", vps: "vps11", outcome: "won" };
   const arbs = [
     { dateKey: "2026-08-05", profitUsd: 100, legs: [leg] },
     { dateKey: "2026-09-25", profitUsd: 3, legs: [leg] },
-    { dateKey: "2026-09-26", profitUsd: 1000, legs: [leg] }
+    { dateKey: "2026-09-26", profitUsd: 2, legs: [leg] },
+    { dateKey: "2026-09-27", profitUsd: 1000, legs: [leg] }
   ];
-  assert.equal(getPeriodArbs(arbs).length, 1);
-  assert.equal(getReportEndDate(arbs), "2026-09-25");
-  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 1, profitUsd: 3 });
+  assert.equal(getPeriodArbs(arbs).length, 2);
+  assert.equal(getReportEndDate(arbs), "2026-09-26");
+  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 2, profitUsd: 5 });
 });
 
 test("allocates once per participating account and excludes unplaced legs", () => {
@@ -43,7 +44,7 @@ test("does not guess a VPS when multiple accounts match", () => {
   assert.ok(accounts.every((a) => !accountMatchesLeg(a, leg, accounts)));
 });
 
-test("all recorded house/VPS pairs through September 25 have an account", async () => {
+test("all recorded house/VPS pairs through September 26 have an account", async () => {
   const { arbs } = await getArbsDashboardData();
   assert.equal(new Set(CLIENT_ACCOUNTS.map((a) => a.id)).size, CLIENT_ACCOUNTS.length);
   for (const arb of getPeriodArbs(arbs)) {
@@ -55,7 +56,7 @@ test("all recorded house/VPS pairs through September 25 have an account", async 
   }
   const stats = getAccountStats(CLIENT_ACCOUNTS, arbs);
   const added = CLIENT_ACCOUNTS.filter((a) => a.status === "SIN CONFIRMAR");
-  assert.equal(added.length, 11);
+  assert.equal(added.length, 15);
   for (const account of added) {
     assert.equal(account.balance, null);
     assert.ok(stats.get(account.id).count > 0, account.id);
