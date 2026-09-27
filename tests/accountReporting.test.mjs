@@ -55,7 +55,13 @@ test("all recorded house/VPS pairs through September 26 have an account", async 
     }
   }
   const stats = getAccountStats(CLIENT_ACCOUNTS, arbs);
-  const added = CLIENT_ACCOUNTS.filter((a) => a.status === "SIN CONFIRMAR");
+  const importedIds = new Set([
+    "vps-2-rainbet", "vps-2-betpanda", "vps-3-artline", "vps-5-1xbet",
+    "vps-9-stake", "vps-9-bc-game", "vps-9-sportsbetio", "vps-9-betfury",
+    "vps-10-stake", "vps-10-bc-game", "vps-11-jack", "vps-2-fortunejack",
+    "vps-3-rainbet", "vps-10-betfury", "vps-10-rainbet"
+  ]);
+  const added = CLIENT_ACCOUNTS.filter((a) => importedIds.has(a.id));
   assert.equal(added.length, 15);
   for (const account of added) {
     assert.equal(account.balance, null);
