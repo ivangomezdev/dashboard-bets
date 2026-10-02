@@ -10,6 +10,9 @@ function formatDate(date) {
 
 export default function WithdrawalsSection({ withdrawals }) {
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
+  const sortedWithdrawals = [...withdrawals].sort((a, b) =>
+    String(b.date || "").localeCompare(String(a.date || ""))
+  );
   const withdrawalCount = withdrawals.filter(
     (movement) => movement.movementType === "Retiro"
   ).length;
@@ -35,7 +38,7 @@ export default function WithdrawalsSection({ withdrawals }) {
       </div>
 
       <div className="withdrawals-list">
-        {withdrawals.map((withdrawal) => (
+        {sortedWithdrawals.map((withdrawal) => (
           <button
             className="withdrawal-card"
             key={withdrawal.id}
