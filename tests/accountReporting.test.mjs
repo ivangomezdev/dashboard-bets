@@ -4,17 +4,17 @@ import { CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
 import { accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
 
-test("excludes October 2 from activity, profit and report end date", () => {
+test("excludes October 3 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
   const leg = { bookerBase: "jack", vps: "vps11", outcome: "won" };
   const arbs = [
     { dateKey: "2026-08-05", profitUsd: 100, legs: [leg] },
     { dateKey: "2026-09-25", profitUsd: 3, legs: [leg] },
-    { dateKey: "2026-10-01", profitUsd: 2, legs: [leg] },
-    { dateKey: "2026-10-02", profitUsd: 1000, legs: [leg] }
+    { dateKey: "2026-10-02", profitUsd: 2, legs: [leg] },
+    { dateKey: "2026-10-03", profitUsd: 1000, legs: [leg] }
   ];
   assert.equal(getPeriodArbs(arbs).length, 2);
-  assert.equal(getReportEndDate(arbs), "2026-10-01");
+  assert.equal(getReportEndDate(arbs), "2026-10-02");
   assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 2, profitUsd: 5 });
 });
 
@@ -44,7 +44,7 @@ test("does not guess a VPS when multiple accounts match", () => {
   assert.ok(accounts.every((a) => !accountMatchesLeg(a, leg, accounts)));
 });
 
-test("all recorded house/VPS pairs through October 1 have an account", async () => {
+test("all recorded house/VPS pairs through October 2 have an account", async () => {
   const { arbs } = await getArbsDashboardData();
   assert.equal(new Set(CLIENT_ACCOUNTS.map((a) => a.id)).size, CLIENT_ACCOUNTS.length);
   for (const arb of getPeriodArbs(arbs)) {
