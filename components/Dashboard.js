@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo previo de 10781.67 menos 50 USDT por pago de 2 VPS el 05/10/2026.
-const CURRENT_BALANCE_USD = 10731.67;
+// Saldo previo de 10731.67 + 52.77 de ganancia registrada del 05/10; incluye el gasto de 2 VPS.
+const CURRENT_BALANCE_USD = 10784.44;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
