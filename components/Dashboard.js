@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo previo de 10842.32 + 57.53 USD de ganancia registrada del 09/10/2026.
-const CURRENT_BALANCE_USD = 10899.85;
+// Saldo previo de 10899.85 menos 166 USDT de Semana Iván y 411 USDT de BetFury baneo el 11/10/2026.
+const CURRENT_BALANCE_USD = 10322.85;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");

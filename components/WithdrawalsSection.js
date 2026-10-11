@@ -8,6 +8,10 @@ function formatDate(date) {
   return year && month && day ? `${day}/${month}/${year}` : "Sin fecha";
 }
 
+function isDebit(movement) {
+  return ["Pago", "Pérdida"].includes(movement.movementType);
+}
+
 export default function WithdrawalsSection({ withdrawals }) {
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
   const sortedWithdrawals = [...withdrawals].sort((a, b) =>
@@ -22,6 +26,9 @@ export default function WithdrawalsSection({ withdrawals }) {
   const depositCount = withdrawals.filter(
     (movement) => movement.movementType === "Depósito"
   ).length;
+  const lossCount = withdrawals.filter(
+    (movement) => movement.movementType === "Pérdida"
+  ).length;
 
   return (
     <section className="withdrawals-section" aria-labelledby="withdrawals-title">
@@ -33,7 +40,7 @@ export default function WithdrawalsSection({ withdrawals }) {
         </div>
         <div className="withdrawals-total">
           <span>{withdrawals.length} movimientos</span>
-          <strong>{withdrawalCount} retiros · {paymentCount} pago · {depositCount} depósito</strong>
+          <strong>{withdrawalCount} retiros · {paymentCount} pago · {depositCount} depósito{lossCount > 0 ? ` · ${lossCount} pérdida` : ""}</strong>
         </div>
       </div>
 
@@ -50,10 +57,10 @@ export default function WithdrawalsSection({ withdrawals }) {
               <small>{withdrawal.vps} · {formatDate(withdrawal.date)}</small>
             </span>
             <span className="withdrawal-amount">
-              <strong>{withdrawal.movementType === "Pago" ? "−" : withdrawal.movementType === "Depósito" ? "+" : ""}{withdrawal.amount.toFixed(2)} {withdrawal.currency}</strong>
+              <strong>{isDebit(withdrawal) ? "−" : withdrawal.movementType === "Depósito" ? "+" : ""}{withdrawal.amount.toFixed(2)} {withdrawal.currency}</strong>
               <small>{withdrawal.receiptImage ? "Ver comprobante" : "Ver detalle"}</small>
             </span>
-            <span className={`withdrawal-status ${withdrawal.movementType === "Pago" ? "is-payment" : ""} ${withdrawal.movementType === "Depósito" ? "is-deposit" : ""}`}>
+            <span className={`withdrawal-status ${isDebit(withdrawal) ? "is-payment" : ""} ${withdrawal.movementType === "Depósito" ? "is-deposit" : ""}`}>
               {withdrawal.movementType}
             </span>
           </button>
@@ -103,7 +110,9 @@ export default function WithdrawalsSection({ withdrawals }) {
               <dl className="withdrawal-details">
                 <div>
                   <dt>
-                    {selectedWithdrawal.movementType === "Pago"
+                    {selectedWithdrawal.movementType === "Pérdida"
+                      ? "Monto perdido"
+                      : selectedWithdrawal.movementType === "Pago"
                       ? "Monto pagado"
                       : selectedWithdrawal.movementType === "Depósito"
                         ? "Monto depositado"
