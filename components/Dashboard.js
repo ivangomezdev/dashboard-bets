@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo base de 10322.85 + 108.83 USD de ganancia confirmada del 11/10 menos 50 USDT por pago de VPS el 12/10/2026.
-const CURRENT_BALANCE_USD = 10381.68;
+// Saldo total confirmado por el usuario el 12/10/2026.
+const CURRENT_BALANCE_USD = 10411.68;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
