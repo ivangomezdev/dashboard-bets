@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo confirmado de 10411.68 + 68.67 USD por ganancia confirmada de 1264 MXN del 12/10/2026.
-const CURRENT_BALANCE_USD = 10480.35;
+// Saldo anterior de 10480.35 + 65.14 USD por ganancia de 1191.47 MXN del 13/10/2026 registrada en el dashboard local.
+const CURRENT_BALANCE_USD = 10545.49;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
