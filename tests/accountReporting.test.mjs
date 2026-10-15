@@ -4,7 +4,7 @@ import { CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
 import { accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
 
-test("includes October 13 and excludes October 14 from activity, profit and report end date", () => {
+test("includes October 14 and excludes October 15 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
   const leg = { bookerBase: "jack", vps: "vps11", outcome: "won" };
   const arbs = [
@@ -12,11 +12,12 @@ test("includes October 13 and excludes October 14 from activity, profit and repo
     { dateKey: "2026-09-25", profitUsd: 3, legs: [leg] },
     { dateKey: "2026-10-12", profitUsd: 2, legs: [leg] },
     { dateKey: "2026-10-13", profitUsd: 4, legs: [leg] },
-    { dateKey: "2026-10-14", profitUsd: 1000, legs: [leg] }
+    { dateKey: "2026-10-14", profitUsd: 5, legs: [leg] },
+    { dateKey: "2026-10-15", profitUsd: 1000, legs: [leg] }
   ];
-  assert.equal(getPeriodArbs(arbs).length, 3);
-  assert.equal(getReportEndDate(arbs), "2026-10-13");
-  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 3, profitUsd: 9 });
+  assert.equal(getPeriodArbs(arbs).length, 4);
+  assert.equal(getReportEndDate(arbs), "2026-10-14");
+  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 4, profitUsd: 14 });
 });
 
 test("allocates once per participating account and excludes unplaced legs", () => {
@@ -45,7 +46,7 @@ test("does not guess a VPS when multiple accounts match", () => {
   assert.ok(accounts.every((a) => !accountMatchesLeg(a, leg, accounts)));
 });
 
-test("all recorded house/VPS pairs through October 13 have an account", async () => {
+test("all recorded house/VPS pairs through October 14 have an account", async () => {
   const { arbs } = await getArbsDashboardData();
   assert.equal(new Set(CLIENT_ACCOUNTS.map((a) => a.id)).size, CLIENT_ACCOUNTS.length);
   for (const arb of getPeriodArbs(arbs)) {
@@ -88,4 +89,16 @@ test("October 13 reconciles local profit, manual correction and six replicas", a
   assert.equal(new Set(records.map((arb) => arb.id)).size, 26);
   assert.equal(records.filter((arb) => arb.id.startsWith("manual:")).length, 6);
   assert.equal(records.find((arb) => arb.event === "Orion FC - Independiente San Vicente").profitMxn, -18);
+});
+
+test("October 14 preserves 32 local closures and uses the confirmed USD daily total", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find((row) => row.date === "2026-10-14");
+  assert.equal(day.count, 32);
+  assert.equal(day.profitMxn, 1694.89);
+  assert.equal(day.profitUsd, 101.95);
+  const records = arbs.filter((arb) => arb.dateKey === day.date);
+  assert.equal(new Set(records.map((arb) => arb.id)).size, 32);
+  assert.equal(records.filter((arb) => arb.id.startsWith("manual:")).length, 10);
+  assert.equal(records.find((arb) => arb.event.startsWith("Radunia Stezyca")).profitMxn, 70);
 });
