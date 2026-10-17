@@ -126,6 +126,15 @@ export default function ArbsTable({ arbs }) {
                           </div>
                         ))}
                       </div>
+                      {arb.evidence?.map((item) => (
+                        <div className="leg-item" key={item.ticket}>
+                          <a href={item.path} target="_blank" rel="noopener noreferrer">
+                            <img src={item.path} alt={item.label} loading="lazy" style={{ width: "100%", maxWidth: 360, height: "auto" }} />
+                            <small>{item.label}</small>
+                          </a>
+                          <small>{item.description}</small>
+                        </div>
+                      ))}
                     </details>
                   </td>
                   <td>{arb.market}</td>
