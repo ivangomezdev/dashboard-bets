@@ -138,11 +138,11 @@ test("October 16 includes all closures and matches cancellation evidence to losi
   }
 });
 
-test("October 17 preserves the local daily results", async () => {
+test("October 17 uses the user-confirmed MXN total and recorded 18.46 exchange rate", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find(row => row.date === "2026-10-17");
   assert.equal(day.count, 52);
-  assert.equal(day.profitMxn, 1791.59);
-  assert.equal(day.profitUsd, 97.02);
+  assert.equal(day.profitMxn, 2000);
+  assert.equal(day.profitUsd, 108.34);
   assert.equal(new Set(arbs.filter(arb => arb.dateKey === day.date).map(arb => arb.id)).size, 52);
 });
