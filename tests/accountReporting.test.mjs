@@ -4,7 +4,7 @@ import { CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
 import { accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
 
-test("includes October 16 and excludes October 17 from activity, profit and report end date", () => {
+test("includes October 17 and excludes October 18 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
   const leg = { bookerBase: "jack", vps: "vps11", outcome: "won" };
   const arbs = [
@@ -15,11 +15,12 @@ test("includes October 16 and excludes October 17 from activity, profit and repo
     { dateKey: "2026-10-14", profitUsd: 5, legs: [leg] },
     { dateKey: "2026-10-15", profitUsd: 6, legs: [leg] },
     { dateKey: "2026-10-16", profitUsd: -8, legs: [leg] },
-    { dateKey: "2026-10-17", profitUsd: 1000, legs: [leg] }
+    { dateKey: "2026-10-17", profitUsd: 7, legs: [leg] },
+    { dateKey: "2026-10-18", profitUsd: 1000, legs: [leg] }
   ];
-  assert.equal(getPeriodArbs(arbs).length, 6);
-  assert.equal(getReportEndDate(arbs), "2026-10-16");
-  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 6, profitUsd: 12 });
+  assert.equal(getPeriodArbs(arbs).length, 7);
+  assert.equal(getReportEndDate(arbs), "2026-10-17");
+  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 7, profitUsd: 19 });
 });
 
 test("allocates once per participating account and excludes unplaced legs", () => {
@@ -135,4 +136,13 @@ test("October 16 includes all closures and matches cancellation evidence to losi
     const { access } = await import("node:fs/promises");
     await access(new URL("../public" + arb.evidence[0].path, import.meta.url));
   }
+});
+
+test("October 17 preserves the local daily results", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find(row => row.date === "2026-10-17");
+  assert.equal(day.count, 52);
+  assert.equal(day.profitMxn, 1791.59);
+  assert.equal(day.profitUsd, 97.02);
+  assert.equal(new Set(arbs.filter(arb => arb.dateKey === day.date).map(arb => arb.id)).size, 52);
 });
