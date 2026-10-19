@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo total: 10688 USD publicados + 100 USD indicados por el usuario el 18/10/2026.
-const CURRENT_BALANCE_USD = 10788;
+// Saldo total: 10788 - 25 - 25 - 166 + 107.51 USD; actualizado el 19/10/2026.
+const CURRENT_BALANCE_USD = 10679.51;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");

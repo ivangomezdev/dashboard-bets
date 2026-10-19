@@ -108,6 +108,12 @@ export default function WithdrawalsSection({ withdrawals }) {
                 </div>
               ) : null}
               <dl className="withdrawal-details">
+                {selectedWithdrawal.receiptPdf ? (
+                  <div>
+                    <dt>Comprobante original</dt>
+                    <dd><a href={selectedWithdrawal.receiptPdf} target="_blank" rel="noopener noreferrer">Abrir PDF</a></dd>
+                  </div>
+                ) : null}
                 <div>
                   <dt>
                     {selectedWithdrawal.movementType === "Pérdida"
