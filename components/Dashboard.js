@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo total: 10679.51 + 95.29 USD de ganancia confirmada del 19/10/2026.
-const CURRENT_BALANCE_USD = 10774.80;
+// Saldo total: 10774.80 + 84.14 USD de los cierres del 20/10/2026 (1553.15 MXN / 18.46).
+const CURRENT_BALANCE_USD = 10858.94;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
