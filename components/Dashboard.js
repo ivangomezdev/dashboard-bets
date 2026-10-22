@@ -13,7 +13,7 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo total: 10858.94 - 250 (cuentas Mexico) - 29 (VPS) + 66 USD de ganancia confirmada del 21/10.
+// Saldo general: 10858.94 - 250 (cuentas Mexico) - 29 (VPS) + 66 USD; independiente del total diario de 87 USD.
 const CURRENT_BALANCE_USD = 10645.94;
 
 function withoutUsdCode(value) {

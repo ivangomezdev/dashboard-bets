@@ -198,7 +198,7 @@ test("October 20 imports 37 local closures and converts the daily MXN total once
   assert.ok(getReportEndDate(arbs) >= day.date);
 });
 
-test("October 21 uses confirmed USD 66 instead of computed profit and deducts payments only from balance", async () => {
+test("October 21 uses USD 87 for daily results and USD 66 only for the general balance", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find(row => row.date === "2026-10-21");
   const records = arbs.filter(arb => arb.dateKey === day.date);
@@ -206,8 +206,8 @@ test("October 21 uses confirmed USD 66 instead of computed profit and deducts pa
   assert.equal(new Set(records.map(arb => arb.id)).size, 39);
   const closedProfitMxn = Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2));
   assert.equal(closedProfitMxn, 1700.50);
-  assert.equal(day.profitMxn, 1218.36);
-  assert.equal(day.profitUsd, 66);
+  assert.equal(day.profitMxn, 1606.02);
+  assert.equal(day.profitUsd, 87);
   assert.equal(Number((closedProfitMxn / 18.46).toFixed(2)), 92.12);
   assert.equal(getReportEndDate(arbs), day.date);
 
@@ -217,7 +217,7 @@ test("October 21 uses confirmed USD 66 instead of computed profit and deducts pa
   assert.equal(payments.length, 2);
   assert.deepEqual(payments.map(m => m.amount), [250, 29]);
   assert.ok(payments.every(m => m.movementType === "Pago" && m.currency === "USD" && m.date === "2026-10-22"));
-  const balance = Number((10858.94 - payments.reduce((sum, m) => sum + m.amount, 0) + day.profitUsd).toFixed(2));
+  const balance = Number((10858.94 - payments.reduce((sum, m) => sum + m.amount, 0) + 66).toFixed(2));
   assert.equal(balance, 10645.94);
   const { readFile } = await import("node:fs/promises");
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
