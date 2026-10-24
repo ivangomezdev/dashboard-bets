@@ -253,15 +253,15 @@ test("October 22 imports 34 closures with the recorded 18.63 rate and preserves 
 });
 
 
-test("October 23 imports 45 closures and uses the source 18.73 conversion rate", async () => {
+test("October 23 preserves 45 closures and uses the user-confirmed USD 113.06 total", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find(row => row.date === "2026-10-23");
   const records = arbs.filter(arb => arb.dateKey === day.date);
   assert.equal(day.count, 45);
   assert.equal(new Set(records.map(arb => arb.id)).size, 45);
-  assert.equal(day.profitMxn, 2248.77);
-  assert.equal(day.profitUsd, 120.06);
-  assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), day.profitMxn);
+  assert.equal(day.profitMxn, 2117.61);
+  assert.equal(day.profitUsd, 113.06);
+  assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 2248.77);
   const overnight = records.find(arb => arb.id === "1792715693352-kim0u3");
   assert.equal(overnight.event, "UCV FC - Club Atletico Barinas");
   assert.equal(overnight.profitMxn, 61.63);
