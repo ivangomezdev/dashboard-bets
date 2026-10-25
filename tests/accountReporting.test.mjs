@@ -264,15 +264,15 @@ test("October 23 preserves 45 closures and uses the user-confirmed USD 113.06 to
 });
 
 
-test("October 24 imports 39 closures and uses the user-confirmed balance independently", async () => {
+test("October 24 preserves 39 closures and uses confirmed USD 133.14 profit independently of balance", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find(row => row.date === "2026-10-24");
   const records = arbs.filter(arb => arb.dateKey === day.date);
   assert.equal(day.count, 39);
   assert.equal(new Set(records.map(arb => arb.id)).size, 39);
-  assert.equal(day.profitMxn, 2227.33);
-  assert.equal(day.profitUsd, 119.17);
-  assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), day.profitMxn);
+  assert.equal(day.profitMxn, 2488.39);
+  assert.equal(day.profitUsd, 133.14);
+  assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 2227.33);
   assert.equal(daily.find(row => row.date === "2026-10-23").profitUsd, 113.06);
   assert.equal(getReportEndDate(arbs), day.date);
   const { readFile } = await import("node:fs/promises");
