@@ -4,7 +4,7 @@ import { CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
 import { accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
 
-test("includes October 24 and excludes October 25 from activity, profit and report end date", () => {
+test("includes October 25 and excludes October 26 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
   const leg = { bookerBase: "jack", vps: "vps11", outcome: "won" };
   const arbs = [
@@ -23,11 +23,12 @@ test("includes October 24 and excludes October 25 from activity, profit and repo
     { dateKey: "2026-10-22", profitUsd: 12, legs: [leg] },
     { dateKey: "2026-10-23", profitUsd: 13, legs: [leg] },
     { dateKey: "2026-10-24", profitUsd: 14, legs: [leg] },
-    { dateKey: "2026-10-25", profitUsd: 1000, legs: [leg] }
+    { dateKey: "2026-10-25", profitUsd: 15, legs: [leg] },
+    { dateKey: "2026-10-26", profitUsd: 1000, legs: [leg] }
   ];
-  assert.equal(getPeriodArbs(arbs).length, 14);
-  assert.equal(getReportEndDate(arbs), "2026-10-24");
-  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 14, profitUsd: 96 });
+  assert.equal(getPeriodArbs(arbs).length, 15);
+  assert.equal(getReportEndDate(arbs), "2026-10-25");
+  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 15, profitUsd: 111 });
 });
 
 test("allocates once per participating account and excludes unplaced legs", () => {
@@ -274,10 +275,32 @@ test("October 24 preserves 39 closures and uses confirmed USD 133.14 profit inde
   assert.equal(day.profitUsd, 133.14);
   assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 2227.33);
   assert.equal(daily.find(row => row.date === "2026-10-23").profitUsd, 113.06);
-  assert.equal(getReportEndDate(arbs), day.date);
+  assert.ok(getReportEndDate(arbs) >= day.date);
   const { readFile } = await import("node:fs/promises");
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
   assert.equal(balance, 10983.11);
   assert.notEqual(balance, Number((10873.56 + day.profitUsd).toFixed(2)));
+});
+
+
+test("October 25 imports 47 closures without changing confirmed historical totals or balance", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find(row => row.date === "2026-10-25");
+  const records = arbs.filter(arb => arb.dateKey === day.date);
+  assert.equal(day.count, 47);
+  assert.equal(new Set(records.map(arb => arb.id)).size, 47);
+  assert.equal(day.profitMxn, 2020.27);
+  assert.equal(day.profitUsd, 108.15);
+  assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), day.profitMxn);
+  const overnight = records.find(arb => arb.id === "1792889196242-raaxtf");
+  assert.equal(overnight.event, "Houston Dynamo - Minnesota United FC");
+  assert.equal(overnight.profitMxn, 0);
+  assert.equal(daily.find(row => row.date === "2026-10-24").count, 39);
+  assert.equal(daily.find(row => row.date === "2026-10-24").profitUsd, 133.14);
+  assert.equal(getReportEndDate(arbs), day.date);
+  const { readFile } = await import("node:fs/promises");
+  const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
+  const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
+  assert.equal(balance, 10983.11);
 });
