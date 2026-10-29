@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo general: 10983.11 USD confirmados - 166 USD de Semana Ivan (26/10/2026). El ajuste diario a 127.72 USD no modifica el saldo.
-const CURRENT_BALANCE_USD = 10817.11;
+// Saldo general: 10817.11 - 140.01 (26/10) + 97.33 (27/10) + 86.85 (28/10) USD.
+const CURRENT_BALANCE_USD = 10861.28;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
