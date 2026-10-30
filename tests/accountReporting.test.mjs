@@ -361,15 +361,15 @@ test("October 28 includes overnight closures and reconciles balance with the Oct
 });
 
 
-test("October 29 keeps daily closures separate from the user-confirmed MXN 1107 balance increment", async () => {
+test("October 29 uses confirmed MXN 1107 and USD 59.36 daily profit without adding to balance twice", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find(row => row.date === "2026-10-29");
   const records = arbs.filter(arb => arb.dateKey === day.date);
   assert.equal(day.count, 17);
   assert.equal(new Set(records.map(arb => arb.id)).size, 17);
-  assert.equal(day.profitMxn, 749.61);
-  assert.equal(day.profitUsd, 40.19);
-  assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), day.profitMxn);
+  assert.equal(day.profitMxn, 1107);
+  assert.equal(day.profitUsd, 59.36);
+  assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 749.61);
   assert.equal(records.find(arb => arb.id === "1793239460046-esmg0x").event, "Bahia BA - Sao Paulo SP");
   assert.equal(daily.find(row => row.date === "2026-10-28").count, 36);
   assert.equal(daily.find(row => row.date === "2026-10-28").profitUsd, 86.85);
