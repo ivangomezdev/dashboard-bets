@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo general: 10817.11 - 140.01 (26/10) + 97.33 (27/10) + 86.85 (28/10) USD.
-const CURRENT_BALANCE_USD = 10861.28;
+// Saldo general: 10861.28 + 59.36 USD (1107 MXN / 18.65), incremento confirmado por el usuario para el 29/10.
+const CURRENT_BALANCE_USD = 10920.64;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
