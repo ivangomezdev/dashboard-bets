@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo general: 11145.81 + 150 (01/11) - 166 (Semana Ivan) - 25 (VPS 8) USD. Ganancia diaria confirmada: 169.84 USD.
-const CURRENT_BALANCE_USD = 11104.81;
+// Saldo general: 11145.81 + 150 (01/11) - 166 (Semana Ivan) USD. Ganancia diaria confirmada: 169.84 USD.
+const CURRENT_BALANCE_USD = 11129.81;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
