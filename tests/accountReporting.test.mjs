@@ -4,7 +4,7 @@ import { CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
 import { accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
 
-test("includes November 1 and excludes November 2 from activity, profit and report end date", () => {
+test("includes November 2 and excludes November 3 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
   const leg = { bookerBase: "jack", vps: "vps11", outcome: "won" };
   const arbs = [
@@ -31,11 +31,12 @@ test("includes November 1 and excludes November 2 from activity, profit and repo
     { dateKey: "2026-10-30", profitUsd: 20, legs: [leg] },
     { dateKey: "2026-10-31", profitUsd: 21, legs: [leg] },
     { dateKey: "2026-11-01", profitUsd: 22, legs: [leg] },
-    { dateKey: "2026-11-02", profitUsd: 1000, legs: [leg] }
+    { dateKey: "2026-11-02", profitUsd: 23, legs: [leg] },
+    { dateKey: "2026-11-03", profitUsd: 1000, legs: [leg] }
   ];
-  assert.equal(getPeriodArbs(arbs).length, 22);
-  assert.equal(getReportEndDate(arbs), "2026-11-01");
-  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 22, profitUsd: 212 });
+  assert.equal(getPeriodArbs(arbs).length, 23);
+  assert.equal(getReportEndDate(arbs), "2026-11-02");
+  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 23, profitUsd: 235 });
 });
 
 test("allocates once per participating account and excludes unplaced legs", () => {
@@ -429,7 +430,7 @@ test("November 1 uses confirmed USD 169.84 daily profit and adds only USD 150 be
   assert.equal(overnight[0].dateKey, day.date);
   assert.equal(overnight[0].profitMxn, 79.58);
   assert.equal(daily.find(row => row.date === "2026-10-31").profitUsd, 161.33);
-  assert.equal(getReportEndDate(arbs), day.date);
+  assert.ok(getReportEndDate(arbs) >= day.date);
   const { WITHDRAWALS } = await import("../lib/withdrawals.js");
   const ids = ["ivan-week-payment-2026-11-02"];
   const payments = WITHDRAWALS.filter(m => ids.includes(m.id));
@@ -443,6 +444,24 @@ test("November 1 uses confirmed USD 169.84 daily profit and adds only USD 150 be
   const { readFile } = await import("node:fs/promises");
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
-  assert.equal(balance, expectedBalance);
+  assert.equal(balance, Number((expectedBalance + 108.98).toFixed(2)));
   assert.notEqual(balance, Number((expectedBalance + day.profitUsd).toFixed(2)));
+});
+
+
+test("November 2 imports 30 unique closures and uses confirmed USD 108.98 daily profit", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find(row => row.date === "2026-11-02");
+  const records = arbs.filter(arb => arb.dateKey === day.date);
+  assert.equal(day.count, 30);
+  assert.equal(new Set(records.map(arb => arb.id)).size, 30);
+  assert.equal(day.profitUsd, 108.98);
+  const { readFile } = await import("node:fs/promises");
+  const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
+  const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
+  assert.equal(balance, Number((11129.81 + day.profitUsd).toFixed(2)));
+  assert.equal(records.filter(arb => ["1793583118318-mu77z6", "1793583141735-t7tgd6"].includes(arb.id)).length, 2);
+  assert.equal(daily.find(row => row.date === "2026-11-01").count, 61);
+  assert.equal(daily.find(row => row.date === "2026-11-01").profitUsd, 169.84);
+  assert.equal(getReportEndDate(arbs), day.date);
 });
