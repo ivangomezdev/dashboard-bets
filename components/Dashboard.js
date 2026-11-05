@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo general: 11238.79 + 110 (03/11) USD. Ganancia diaria confirmada: 120.08 USD.
-const CURRENT_BALANCE_USD = 11348.79;
+// Saldo general: 11348.79 + 113.10 (04/11) - 75 (VPS 1, 3 y 8) USD.
+const CURRENT_BALANCE_USD = 11386.89;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");

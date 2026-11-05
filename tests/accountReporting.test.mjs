@@ -4,7 +4,7 @@ import { CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
 import { accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
 
-test("includes November 3 and excludes November 4 from activity, profit and report end date", () => {
+test("includes November 4 and excludes November 5 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
   const leg = { bookerBase: "jack", vps: "vps11", outcome: "won" };
   const arbs = [
@@ -33,11 +33,12 @@ test("includes November 3 and excludes November 4 from activity, profit and repo
     { dateKey: "2026-11-01", profitUsd: 22, legs: [leg] },
     { dateKey: "2026-11-02", profitUsd: 23, legs: [leg] },
     { dateKey: "2026-11-03", profitUsd: 24, legs: [leg] },
-    { dateKey: "2026-11-04", profitUsd: 1000, legs: [leg] }
+    { dateKey: "2026-11-04", profitUsd: 25, legs: [leg] },
+    { dateKey: "2026-11-05", profitUsd: 1000, legs: [leg] }
   ];
-  assert.equal(getPeriodArbs(arbs).length, 24);
-  assert.equal(getReportEndDate(arbs), "2026-11-03");
-  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 24, profitUsd: 259 });
+  assert.equal(getPeriodArbs(arbs).length, 25);
+  assert.equal(getReportEndDate(arbs), "2026-11-04");
+  assert.deepEqual(getAccountStats([account], arbs).get(account.id), { count: 25, profitUsd: 284 });
 });
 
 test("allocates once per participating account and excludes unplaced legs", () => {
@@ -471,10 +472,35 @@ test("November 3 imports 32 unique closures, reports USD 120.08 and adds only US
   assert.equal(records.filter(arb => arb.id === "1793672622604-glumym").length, 1);
   assert.equal(daily.find(row => row.date === "2026-11-02").count, 30);
   assert.equal(daily.find(row => row.date === "2026-11-02").profitUsd, 108.98);
+  assert.ok(getReportEndDate(arbs) >= day.date);
+  assert.equal(Number((11238.79 + 110).toFixed(2)), 11348.79);
+});
+
+
+test("November 4 imports 52 closures and deducts three USD 25 VPS payments once", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find(row => row.date === "2026-11-04");
+  const records = arbs.filter(arb => arb.dateKey === day.date);
+  assert.equal(day.count, 52);
+  assert.equal(new Set(records.map(arb => arb.id)).size, 52);
+  assert.equal(day.profitMxn, 2119.54);
+  assert.equal(day.profitUsd, 113.10);
+  assert.equal(Number(records.reduce((sum, arb) => sum + arb.profitUsd, 0).toFixed(2)), day.profitUsd);
+  assert.equal(daily.find(row => row.date === "2026-11-03").count, 32);
+  assert.equal(daily.find(row => row.date === "2026-11-03").profitUsd, 120.08);
   assert.equal(getReportEndDate(arbs), day.date);
+  const { WITHDRAWALS } = await import("../lib/withdrawals.js");
+  const ids = [1, 3, 8].map(vps => `vps${vps}-payment-2026-11-04`);
+  const payments = WITHDRAWALS.filter(m => ids.includes(m.id));
+  assert.equal(payments.length, 3);
+  assert.equal(new Set(payments.map(m => m.id)).size, 3);
+  assert.deepEqual(payments.map(m => m.vps), ["VPS 1", "VPS 3", "VPS 8"]);
+  assert.ok(payments.every(m => m.amount === 25 && m.movementType === "Pago" && m.currency === "USD" && m.date === day.date));
+  const expenses = payments.reduce((sum, m) => sum + m.amount, 0);
+  assert.equal(expenses, 75);
   const { readFile } = await import("node:fs/promises");
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
-  assert.equal(balance, Number((11238.79 + 110).toFixed(2)));
-  assert.notEqual(balance, Number((11238.79 + day.profitUsd).toFixed(2)));
+  assert.equal(balance, Number((11348.79 + day.profitUsd - expenses).toFixed(2)));
+  assert.equal(balance, 11386.89);
 });
