@@ -503,7 +503,7 @@ test("November 4 imports 52 closures and deducts three USD 25 VPS payments once"
 });
 
 
-test("November 5 imports 47 unique closures and adds confirmed USD 126.54 to balance once", async () => {
+test("November 5 preserves USD 126.54 daily profit and uses confirmed USD 11501.43 balance", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find(row => row.date === "2026-11-05");
   const records = arbs.filter(arb => arb.dateKey === day.date);
@@ -521,6 +521,6 @@ test("November 5 imports 47 unique closures and adds confirmed USD 126.54 to bal
   const { readFile } = await import("node:fs/promises");
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
-  assert.equal(balance, Number((11386.89 + day.profitUsd).toFixed(2)));
-  assert.equal(balance, 11513.43);
+  assert.equal(balance, Number((11386.89 + day.profitUsd - 12).toFixed(2)));
+  assert.equal(balance, 11501.43);
 });
