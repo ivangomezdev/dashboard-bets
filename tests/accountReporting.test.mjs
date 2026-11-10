@@ -564,7 +564,7 @@ test("November 7 preserves confirmed USD 115.77 with 24 local closures", async (
   assert.equal(getReportEndDate(arbs), day.date);
 });
 
-test("November 8 and 10 publish confirmed daily profits and update balance once", async () => {
+test("November 8 and 10 preserve daily profits and deduct three payments from balance once", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const november8 = daily.find(row => row.date === "2026-11-08");
   const november10 = daily.find(row => row.date === "2026-11-10");
@@ -575,9 +575,18 @@ test("November 8 and 10 publish confirmed daily profits and update balance once"
   assert.equal(november10.count, arbs.filter(arb => arb.dateKey === november10.date).length);
   assert.equal(daily.filter(row => row.date === november8.date || row.date === november10.date).length, 2);
   assert.ok(!daily.some(row => row.date === "2026-11-09"));
+  const { WITHDRAWALS } = await import("../lib/withdrawals.js");
+  const ids = ["vps-payment-2026-11-10", "new-client-payment-2026-11-10", "ivan-week-payment-2026-11-10"];
+  const payments = WITHDRAWALS.filter(m => ids.includes(m.id));
+  assert.equal(payments.length, 3);
+  assert.equal(new Set(payments.map(m => m.id)).size, 3);
+  assert.deepEqual(payments.map(m => m.amount), [25, 200, 166]);
+  assert.ok(payments.every(m => m.movementType === "Pago" && m.currency === "USD" && m.date === "2026-11-10"));
+  const expenses = payments.reduce((sum, m) => sum + m.amount, 0);
+  assert.equal(expenses, 391);
   const { readFile } = await import("node:fs/promises");
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
-  assert.equal(balance, Number((11692.18 + november8.profitUsd + november10.profitUsd).toFixed(2)));
-  assert.equal(balance, 11858.06);
+  assert.equal(balance, Number((11692.18 + november8.profitUsd + november10.profitUsd - expenses).toFixed(2)));
+  assert.equal(balance, 11467.06);
 });
