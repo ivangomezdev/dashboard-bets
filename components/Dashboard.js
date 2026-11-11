@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo con ganancias al 10/11 (11858.06 USD) menos VPS (25), cliente nuevo (200) y semana Ivan (166).
-const CURRENT_BALANCE_USD = 11467.06;
+// Saldo al 10/11 corregido: 11467.06 USD + diferencia de ganancia confirmada (82.30 - 68.66 USD).
+const CURRENT_BALANCE_USD = 11480.7;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");

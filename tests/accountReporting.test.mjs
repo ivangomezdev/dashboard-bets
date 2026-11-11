@@ -569,7 +569,7 @@ test("November 8 and 10 preserve daily profits and deduct three payments from ba
   const november8 = daily.find(row => row.date === "2026-11-08");
   const november10 = daily.find(row => row.date === "2026-11-10");
   assert.equal(november8.profitUsd, 97.22);
-  assert.equal(november10.profitUsd, 68.66);
+  assert.equal(november10.profitUsd, 82.3);
   assert.equal(daily.at(-1).date, "2026-11-10");
   assert.equal(november8.count, arbs.filter(arb => arb.dateKey === november8.date).length);
   assert.equal(november10.count, arbs.filter(arb => arb.dateKey === november10.date).length);
@@ -588,5 +588,23 @@ test("November 8 and 10 preserve daily profits and deduct three payments from ba
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
   assert.equal(balance, Number((11692.18 + november8.profitUsd + november10.profitUsd - expenses).toFixed(2)));
-  assert.equal(balance, 11467.06);
+  assert.equal(balance, 11480.7);
+});
+
+test("November 10 imports 41 local closures and preserves manual corrections and replicas", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find(row => row.date === "2026-11-10");
+  const records = arbs.filter(arb => arb.dateKey === day.date);
+  assert.equal(day.count, 41);
+  assert.equal(records.filter(arb => arb.id.startsWith("manual:")).length, 9);
+  assert.equal(new Set(arbs.map(arb => arb.id)).size, arbs.length);
+  assert.equal(day.profitMxn, 1467.89);
+  assert.equal(day.profitUsd, 82.3);
+  const { readFile } = await import("node:fs/promises");
+  const raw = (await readFile("closed_arbs.jsonl", "utf8")).trim().split(/\r?\n/).map(JSON.parse);
+  const imported = raw.filter(row => records.some(arb => arb.id === row.id));
+  assert.equal(imported.find(row => row.localDashboardId === "exec:9d10b3e3-e108-40f1-8cff-34fea434245f").actualProfitMxn, 16);
+  assert.equal(imported.find(row => row.localDashboardId === "exec:4578d642-e622-4e7f-8b64-26a9a395f28d").actualProfitMxn, 0);
+  assert.equal(imported.find(row => row.id === "manual:0bf95a90-a46b-45e0-9ac8-bebe83dd5102").legs[1].booker, "shuffle");
+  assert.ok(imported.every(row => row.localDashboardId));
 });
