@@ -564,13 +564,14 @@ test("November 7 preserves confirmed USD 115.77 with 24 local closures", async (
   assert.equal(getReportEndDate(arbs), day.date);
 });
 
-test("November 8 and 10 preserve daily profits and deduct three payments from balance once", async () => {
+test("November 11 reports USD 71.98 and adds only USD 52 to the balance after the November 10 payments", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const november8 = daily.find(row => row.date === "2026-11-08");
   const november10 = daily.find(row => row.date === "2026-11-10");
   assert.equal(november8.profitUsd, 97.22);
   assert.equal(november10.profitUsd, 82.3);
-  assert.equal(daily.at(-1).date, "2026-11-10");
+  assert.equal(daily.at(-1).date, "2026-11-11");
+  assert.equal(daily.at(-1).profitUsd, 71.98);
   assert.equal(november8.count, arbs.filter(arb => arb.dateKey === november8.date).length);
   assert.equal(november10.count, arbs.filter(arb => arb.dateKey === november10.date).length);
   assert.equal(daily.filter(row => row.date === november8.date || row.date === november10.date).length, 2);
@@ -587,8 +588,9 @@ test("November 8 and 10 preserve daily profits and deduct three payments from ba
   const { readFile } = await import("node:fs/promises");
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
-  assert.equal(balance, Number((11692.18 + november8.profitUsd + november10.profitUsd - expenses).toFixed(2)));
-  assert.equal(balance, 11480.7);
+  const balanceThroughNovember10 = 11692.18 + november8.profitUsd + november10.profitUsd - expenses;
+  assert.equal(balance, Number((balanceThroughNovember10 + 52).toFixed(2)));
+  assert.equal(balance, 11532.7);
 });
 
 test("November 10 imports 41 local closures and preserves manual corrections and replicas", async () => {
