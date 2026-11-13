@@ -564,14 +564,15 @@ test("November 7 preserves confirmed USD 115.77 with 24 local closures", async (
   assert.equal(getReportEndDate(arbs), day.date);
 });
 
-test("November 11 reports USD 71.98 and adds only USD 52 to the balance after the November 10 payments", async () => {
+test("November 11 and 12 report confirmed daily profits separately from the balance", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const november8 = daily.find(row => row.date === "2026-11-08");
   const november10 = daily.find(row => row.date === "2026-11-10");
   assert.equal(november8.profitUsd, 97.22);
   assert.equal(november10.profitUsd, 82.3);
-  assert.equal(daily.at(-1).date, "2026-11-11");
-  assert.equal(daily.at(-1).profitUsd, 71.98);
+  assert.equal(daily.find(row => row.date === "2026-11-11").profitUsd, 71.98);
+  assert.equal(daily.at(-1).date, "2026-11-12");
+  assert.equal(daily.at(-1).profitUsd, 77.81);
   assert.equal(november8.count, arbs.filter(arb => arb.dateKey === november8.date).length);
   assert.equal(november10.count, arbs.filter(arb => arb.dateKey === november10.date).length);
   assert.equal(daily.filter(row => row.date === november8.date || row.date === november10.date).length, 2);
