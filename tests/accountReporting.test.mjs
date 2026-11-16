@@ -564,7 +564,7 @@ test("November 7 preserves confirmed USD 115.77 with 24 local closures", async (
   assert.equal(getReportEndDate(arbs), day.date);
 });
 
-test("November 11 through 13 report confirmed daily profits separately from the balance", async () => {
+test("November 11 through 15 report daily profits and add only USD 100 to the balance", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const november8 = daily.find(row => row.date === "2026-11-08");
   const november10 = daily.find(row => row.date === "2026-11-10");
@@ -572,8 +572,17 @@ test("November 11 through 13 report confirmed daily profits separately from the 
   assert.equal(november10.profitUsd, 82.3);
   assert.equal(daily.find(row => row.date === "2026-11-11").profitUsd, 71.98);
   assert.equal(daily.find(row => row.date === "2026-11-12").profitUsd, 77.81);
-  assert.equal(daily.at(-1).date, "2026-11-13");
-  assert.equal(daily.at(-1).profitUsd, 84);
+  assert.equal(daily.find(row => row.date === "2026-11-13").profitUsd, 84);
+  assert.equal(daily.find(row => row.date === "2026-11-14").profitUsd, 81);
+  const november15 = daily.at(-1);
+  assert.equal(november15.date, "2026-11-15");
+  assert.equal(november15.count, 44);
+  assert.equal(november15.profitMxn, 864.03);
+  assert.equal(november15.profitUsd, 46.56);
+  const november15Records = arbs.filter(arb => arb.dateKey === november15.date);
+  assert.equal(november15Records.find(arb => arb.id === "1794706213250-f3mewa").profitMxn, 0);
+  assert.equal(november15Records.find(arb => arb.id === "1794776516927-aui9cc").profitMxn, -0.01);
+  assert.equal(new Set(arbs.map(arb => arb.id)).size, arbs.length);
   assert.equal(november8.count, arbs.filter(arb => arb.dateKey === november8.date).length);
   assert.equal(november10.count, arbs.filter(arb => arb.dateKey === november10.date).length);
   assert.equal(daily.filter(row => row.date === november8.date || row.date === november10.date).length, 2);
@@ -591,8 +600,8 @@ test("November 11 through 13 report confirmed daily profits separately from the 
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
   const balanceThroughNovember10 = 11692.18 + november8.profitUsd + november10.profitUsd - expenses;
-  assert.equal(balance, Number((balanceThroughNovember10 + 52).toFixed(2)));
-  assert.equal(balance, 11532.7);
+  assert.equal(balance, Number((balanceThroughNovember10 + 52 + 100).toFixed(2)));
+  assert.equal(balance, 11632.7);
 });
 
 test("November 10 imports 41 local closures and preserves manual corrections and replicas", async () => {
