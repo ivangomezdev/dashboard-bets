@@ -574,7 +574,7 @@ test("November 11 through 15 report daily profits and add only USD 100 to the ba
   assert.equal(daily.find(row => row.date === "2026-11-12").profitUsd, 77.81);
   assert.equal(daily.find(row => row.date === "2026-11-13").profitUsd, 84);
   assert.equal(daily.find(row => row.date === "2026-11-14").profitUsd, 81);
-  const november15 = daily.at(-1);
+  const november15 = daily.find(row => row.date === "2026-11-15");
   assert.equal(november15.date, "2026-11-15");
   assert.equal(november15.count, 44);
   assert.equal(november15.profitMxn, 864.03);
@@ -620,4 +620,19 @@ test("November 10 imports 41 local closures and preserves manual corrections and
   assert.equal(imported.find(row => row.localDashboardId === "exec:4578d642-e622-4e7f-8b64-26a9a395f28d").actualProfitMxn, 0);
   assert.equal(imported.find(row => row.id === "manual:0bf95a90-a46b-45e0-9ac8-bebe83dd5102").legs[1].booker, "shuffle");
   assert.ok(imported.every(row => row.localDashboardId));
+});
+
+
+test("November 16 imports 33 unique local closures with manual corrections and confirmed USD 73 profit", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find(row => row.date === "2026-11-16");
+  const records = arbs.filter(arb => arb.dateKey === day.date);
+  assert.equal(day.count, 33);
+  assert.equal(records.length, 33);
+  assert.equal(day.profitMxn, 1090.74);
+  assert.equal(day.profitUsd, 73);
+  assert.equal(new Set(arbs.map(arb => arb.id)).size, arbs.length);
+  assert.equal(records.find(arb => arb.id === "1794843732947-sn340j").profitMxn, 54);
+  assert.equal(records.find(arb => arb.id === "1794848832143-37p46v").profitMxn, 33);
+  assert.equal(records.find(arb => arb.id === "1794855842239-mufwmh").profitMxn, 31);
 });
