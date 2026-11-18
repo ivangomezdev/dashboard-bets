@@ -636,3 +636,21 @@ test("November 16 imports 33 unique local closures with manual corrections and c
   assert.equal(records.find(arb => arb.id === "1794848832143-37p46v").profitMxn, 33);
   assert.equal(records.find(arb => arb.id === "1794855842239-mufwmh").profitMxn, 31);
 });
+
+
+test("November 17 imports 43 unique closures with local corrections and five manual replicas", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find(row => row.date === "2026-11-17");
+  const records = arbs.filter(arb => arb.dateKey === day.date);
+  assert.equal(day.count, 43);
+  assert.equal(records.length, 43);
+  assert.equal(day.profitMxn, 1445.38);
+  assert.equal(day.profitUsd, 77.9);
+  assert.equal(records.filter(arb => arb.id.startsWith("manual:")).length, 5);
+  assert.equal(new Set(arbs.map(arb => arb.id)).size, arbs.length);
+  assert.equal(records.find(arb => arb.id === "1794931653888-bp88uz").profitMxn, 11.54);
+  assert.equal(records.find(arb => arb.id === "1794931655098-j4av7n").profitMxn, 44);
+  assert.equal(records.find(arb => arb.id === "1794945591605-cxlxb0").profitMxn, 37);
+  assert.equal(records.find(arb => arb.id === "1794949626572-75m6gm").profitMxn, 34.99);
+  assert.equal(daily.find(row => row.date === "2026-11-16").profitUsd, 73);
+});
