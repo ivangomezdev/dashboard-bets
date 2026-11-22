@@ -323,51 +323,50 @@ button:disabled {
   margin: 8px 0 0;
 }
 
-.clients-totals {
-  display: flex;
-  flex-wrap: wrap;
+.clients-overview p {
+  max-width: 65ch;
+}
+
+.clients-controls,
+.clients-date {
+  display: grid;
   gap: 8px;
-  justify-content: flex-end;
 }
 
-.clients-totals span {
-  background: #f1efe8;
-  border: 1px solid #e0dacd;
-  border-radius: 999px;
+.clients-date {
+  color: var(--ink);
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.clients-date select {
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  min-height: 42px;
+  padding: 8px 12px;
+}
+
+.clients-history-toggle {
+  align-items: center;
   color: var(--muted);
+  display: flex;
   font-size: 0.8rem;
-  padding: 8px 11px;
-  white-space: nowrap;
+  gap: 8px;
+  min-height: 28px;
 }
 
-.clients-totals .active-total {
-  background: rgba(40, 122, 95, 0.09);
-  border-color: rgba(40, 122, 95, 0.24);
-  color: var(--green);
+.clients-history-toggle input {
+  accent-color: var(--blue);
+  margin: 0;
 }
 
-.clients-totals .offline-total {
-  background: rgba(186, 63, 69, 0.08);
-  border-color: rgba(186, 63, 69, 0.2);
-  color: var(--red);
-}
-
-.clients-totals .pre-market-total {
-  background: rgba(168, 111, 25, 0.09);
-  border-color: rgba(168, 111, 25, 0.24);
-  color: var(--amber);
-}
-
-.clients-totals .temporary-total {
-  background: rgba(39, 98, 123, 0.09);
-  border-color: rgba(39, 98, 123, 0.24);
-  color: var(--blue);
-}
-
-.clients-totals .blocked-total {
-  background: rgba(186, 63, 69, 0.08);
-  border-color: rgba(186, 63, 69, 0.2);
-  color: var(--red);
+.clients-controls :focus-visible,
+.client-account:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .client-booker-grid {
@@ -482,20 +481,26 @@ button:disabled {
   font-size: 1.15rem;
 }
 
-.client-account-activity {
+.client-account-metric {
+  align-items: baseline;
   color: var(--muted);
-  font-size: 0.76rem;
+  display: flex;
+  font-size: 0.8rem;
+  gap: 10px;
+  justify-content: space-between;
 }
 
-.client-account-activity b {
-  color: var(--blue);
+.client-account-metric b {
+  color: var(--ink);
+  text-align: right;
 }
 
 .client-account-result {
   align-items: center;
   border-radius: 6px;
   display: flex;
-  font-size: 0.74rem;
+  font-size: 0.8rem;
+  gap: 10px;
   justify-content: space-between;
   padding: 6px 8px;
 }
@@ -511,6 +516,16 @@ button:disabled {
 }
 
 .client-account-result.is-neutral {
+  background: #f1efe8;
+  color: var(--muted);
+}
+
+.client-account-metric b,
+.client-account-result b {
+  font-variant-numeric: tabular-nums;
+}
+
+.status-badge.is-neutral {
   background: #f1efe8;
   color: var(--muted);
 }
@@ -1254,6 +1269,14 @@ button:disabled {
     justify-content: start;
   }
 
+  .view-nav {
+    flex-wrap: wrap;
+  }
+
+  .view-nav button {
+    padding-inline: 8px;
+  }
+
   .clients-overview {
     align-items: start;
     display: grid;
@@ -1282,10 +1305,6 @@ button:disabled {
 
   .totalized-period-result {
     text-align: left;
-  }
-
-  .clients-totals {
-    justify-content: start;
   }
 
   .pagination-controls {

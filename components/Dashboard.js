@@ -13,8 +13,9 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo anterior (11532.70 USD) más únicamente 100 USD del 15/11.
-const CURRENT_BALANCE_USD = 11632.70;
+// Saldo anterior (11632.70 USD) menos 1269 USD en baneos y pagos del 15 y 17/11.
+const BALANCE_BEFORE_NOVEMBER_21_USD = 10363.70;
+const NOVEMBER_21_BALANCE_CREDIT_USD = 60;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
@@ -201,7 +202,7 @@ export default function Dashboard({ onLogout }) {
       </header>
 
       {activeView === "clients" ? (
-        <ClientsSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} />
+        <ClientsSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} daily={data.daily} />
       ) : activeView === "totalized" ? (
         <TotalizedSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} />
       ) : activeView === "withdrawals" ? (
@@ -211,7 +212,7 @@ export default function Dashboard({ onLogout }) {
       <section className="stats-grid" aria-label="Metricas principales">
         <StatCard
           label="Saldo actual"
-          value={withoutUsdCode(formatMoney(CURRENT_BALANCE_USD, "USD"))}
+          value={withoutUsdCode(formatMoney(BALANCE_BEFORE_NOVEMBER_21_USD + NOVEMBER_21_BALANCE_CREDIT_USD, "USD"))}
           detail="Total disponible"
           tone="good"
         />
@@ -221,7 +222,7 @@ export default function Dashboard({ onLogout }) {
         <button className="stat-card clients-card" type="button" onClick={() => setActiveView("clients")}>
           <span>Clientes disponibles</span>
           <strong>{ACTIVE_CLIENT_COUNT}</strong>
-          <small>Ver cuentas, VPS y saldos</small>
+          <small>Ver actividad por casa y VPS</small>
         </button>
       </section>
 

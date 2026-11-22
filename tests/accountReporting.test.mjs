@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
+import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
-import { accountMatchesLeg, getAccountStats, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
+import { accountMatchesLeg, getAccountStats, getDailyAccountActivity, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
 
 test("includes November 7 and excludes November 8 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
@@ -68,6 +68,40 @@ test("does not guess a VPS when multiple accounts match", () => {
   ];
   const leg = { bookerBase: "jack", vps: null, currency: "USDT", outcome: "won" };
   assert.ok(accounts.every((a) => !accountMatchesLeg(a, leg, accounts)));
+});
+
+test("reports placement, settlement and first recorded bet for each VPS and house", () => {
+  const account = { id: "a", booker: "ArtLine", vps: "VPS 3" };
+  const bet = { bookerBase: "artlinebet", vps: "vps3", stake: 30, currency: "USDT", outcome: "won" };
+  const arbs = [
+    { dateKey: "2026-08-06", synthetic: true, legs: [bet] },
+    { dateKey: "2026-11-19", legs: [{ ...bet, vps: "VPS 2" }, { ...bet, outcome: "missing" }] },
+    { dateKey: "2026-11-21", placedDateKey: "2026-11-20", profitUsd: 6, legs: [
+      bet, { bookerBase: "unlisted", vps: "VPS 8", stake: 40, outcome: "lost" }
+    ] },
+    { dateKey: "2026-11-21", profitUsd: -1, legs: [bet, { ...bet, currency: "USD", stake: 12 }] }
+  ];
+  const stats = getDailyAccountActivity([account], arbs, "2026-11-21").get(account.id);
+  assert.deepEqual(stats, {
+    firstPlacedDate: "2026-11-20",
+    placedCount: 2,
+    stakes: new Map([["USDT", 30], ["USD", 12]]),
+    settledCount: 2,
+    profitUsd: 2
+  });
+});
+
+test("latest inventory contains 47 available accounts across 17 houses", () => {
+  const available = CLIENT_ACCOUNTS.filter((account) => account.status === "ON");
+  const vpsFor = (booker) => available.filter((account) => account.booker === booker)
+    .map((account) => Number(account.vps.split(" ")[1])).sort((a, b) => a - b);
+  assert.equal(ACTIVE_CLIENT_COUNT, 47);
+  assert.equal(new Set(available.map((account) => account.booker)).size, 17);
+  assert.deepEqual(vpsFor("ArtLine"), [2, 3]);
+  assert.deepEqual(vpsFor("BetFury"), [1, 2, 3, 14]);
+  assert.deepEqual(vpsFor("Betsson"), [2, 11, 12, 13]);
+  assert.deepEqual(vpsFor("Jack"), [2, 8, 11, 14]);
+  assert.deepEqual(vpsFor("Gamdom"), [1, 2, 3, 12]);
 });
 
 test("all recorded house/VPS pairs through October 15 have an account", async () => {
@@ -564,7 +598,7 @@ test("November 7 preserves confirmed USD 115.77 with 24 local closures", async (
   assert.equal(getReportEndDate(arbs), day.date);
 });
 
-test("November 11 through 15 report daily profits and add only USD 100 to the balance", async () => {
+test("November 11 through 15 report daily profits and reconcile balance after November 17 expenses", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const november8 = daily.find(row => row.date === "2026-11-08");
   const november10 = daily.find(row => row.date === "2026-11-10");
@@ -598,10 +632,10 @@ test("November 11 through 15 report daily profits and add only USD 100 to the ba
   assert.equal(expenses, 391);
   const { readFile } = await import("node:fs/promises");
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
-  const balance = Number(dashboard.match(/const CURRENT_BALANCE_USD = ([\d.]+);/)[1]);
+  const balance = Number(dashboard.match(/const BALANCE_BEFORE_NOVEMBER_21_USD = ([\d.]+);/)[1]);
   const balanceThroughNovember10 = 11692.18 + november8.profitUsd + november10.profitUsd - expenses;
-  assert.equal(balance, Number((balanceThroughNovember10 + 52 + 100).toFixed(2)));
-  assert.equal(balance, 11632.7);
+  assert.equal(balance, Number((balanceThroughNovember10 + 52 + 100 - 1269).toFixed(2)));
+  assert.equal(balance, 10363.7);
 });
 
 test("November 10 imports 41 local closures and preserves manual corrections and replicas", async () => {
@@ -653,4 +687,19 @@ test("November 17 imports 43 unique closures with local corrections and five man
   assert.equal(records.find(arb => arb.id === "1794945591605-cxlxb0").profitMxn, 37);
   assert.equal(records.find(arb => arb.id === "1794949626572-75m6gm").profitMxn, 34.99);
   assert.equal(daily.find(row => row.date === "2026-11-16").profitUsd, 73);
+});
+
+test("November 21 publishes the full daily result and credits the balance with USD 60", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find((row) => row.date === "2026-11-21");
+  assert.equal(day.count, 41);
+  assert.equal(day.profitMxn, 1718.28);
+  assert.equal(day.profitUsd, 90.29);
+  assert.equal(new Set(arbs.map((arb) => arb.id)).size, arbs.length);
+  assert.equal(arbs.filter((arb) => arb.dateKey === day.date && arb.placedDateKey === "2026-11-20").length, 2);
+
+  const { readFile } = await import("node:fs/promises");
+  const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
+  const credit = Number(dashboard.match(/const NOVEMBER_21_BALANCE_CREDIT_USD = ([\d.]+);/)[1]);
+  assert.equal(credit, 60);
 });
