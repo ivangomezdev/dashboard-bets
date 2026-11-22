@@ -13,8 +13,8 @@ import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "@/lib/clientAccounts";
 import { formatMoney } from "@/lib/format";
 import { WITHDRAWALS } from "@/lib/withdrawals";
 
-// Saldo anterior (11632.70 USD) menos 1269 USD en baneos y pagos del 15 y 17/11.
-const BALANCE_BEFORE_NOVEMBER_21_USD = 10363.70;
+// Saldo confirmado antes de registrar el 21/11.
+const BALANCE_BEFORE_NOVEMBER_21_USD = 11632.70;
 const NOVEMBER_21_BALANCE_CREDIT_USD = 60;
 
 function withoutUsdCode(value) {

@@ -598,7 +598,7 @@ test("November 7 preserves confirmed USD 115.77 with 24 local closures", async (
   assert.equal(getReportEndDate(arbs), day.date);
 });
 
-test("November 11 through 15 report daily profits and reconcile balance after November 17 expenses", async () => {
+test("November 11 through 15 report daily profits and add only USD 100 to the balance", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const november8 = daily.find(row => row.date === "2026-11-08");
   const november10 = daily.find(row => row.date === "2026-11-10");
@@ -634,8 +634,8 @@ test("November 11 through 15 report daily profits and reconcile balance after No
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const balance = Number(dashboard.match(/const BALANCE_BEFORE_NOVEMBER_21_USD = ([\d.]+);/)[1]);
   const balanceThroughNovember10 = 11692.18 + november8.profitUsd + november10.profitUsd - expenses;
-  assert.equal(balance, Number((balanceThroughNovember10 + 52 + 100 - 1269).toFixed(2)));
-  assert.equal(balance, 10363.7);
+  assert.equal(balance, Number((balanceThroughNovember10 + 52 + 100).toFixed(2)));
+  assert.equal(balance, 11632.7);
 });
 
 test("November 10 imports 41 local closures and preserves manual corrections and replicas", async () => {
