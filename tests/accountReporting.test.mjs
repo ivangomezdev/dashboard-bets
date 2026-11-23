@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
-import { accountMatchesLeg, getAccountStats, getDailyAccountActivity, getPeriodArbs, getReportEndDate } from "../lib/accountReporting.js";
+import { accountMatchesLeg, getAccountStats, getDailyAccountActivity, getPeriodArbs, getRecordedAccountStats, getRecordedReportEndDate, getReportEndDate } from "../lib/accountReporting.js";
 
 test("includes November 7 and excludes November 8 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
@@ -692,7 +692,7 @@ test("November 17 imports 43 unique closures with local corrections and five man
 test("November 21 publishes the full daily result and credits the balance with USD 60", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find((row) => row.date === "2026-11-21");
-  assert.equal(day.count, 41);
+  assert.equal(day.count, 42);
   assert.equal(day.profitMxn, 1718.28);
   assert.equal(day.profitUsd, 90.29);
   assert.equal(new Set(arbs.map((arb) => arb.id)).size, arbs.length);
@@ -702,4 +702,29 @@ test("November 21 publishes the full daily result and credits the balance with U
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const credit = Number(dashboard.match(/const NOVEMBER_21_BALANCE_CREDIT_USD = ([\d.]+);/)[1]);
   assert.equal(credit, 60);
+});
+
+test("November 22 preserves manual replicas in Totalizado", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find((row) => row.date === "2026-11-22");
+  const manual = arbs.filter((arb) => arb.id.startsWith("manual:2026-11-22-"));
+  assert.equal(day.count, 37);
+  assert.equal(day.profitMxn, 955.91);
+  assert.equal(manual.length, 16);
+  assert.equal(Number(manual.reduce((sum, arb) => sum + arb.totalStakeMxn, 0).toFixed(2)), 27523.51);
+  assert.equal(manual.reduce((sum, arb) => sum + arb.profitMxn, 0), 642);
+  assert.equal(getRecordedReportEndDate(arbs), "2026-11-22");
+
+  for (const arb of manual) {
+    for (const leg of arb.legs) {
+      const matches = CLIENT_ACCOUNTS.filter((account) => accountMatchesLeg(account, leg, CLIENT_ACCOUNTS));
+      assert.equal(matches.length, 1, `${arb.id}: ${leg.bookerBase} / ${leg.vps}`);
+    }
+  }
+
+  const stats = getRecordedAccountStats(CLIENT_ACCOUNTS, manual);
+  assert.equal(stats.get("vps-14-codere").count, 2);
+  assert.equal(stats.get("vps-15-codere").count, 2);
+  assert.equal(stats.get("vps-12-sportsbetio").count, 2);
+  assert.equal(stats.get("vps-15-pokerstars").count, 2);
 });

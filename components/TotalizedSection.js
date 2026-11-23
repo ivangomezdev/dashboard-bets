@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import BookmakerName from "@/components/BookmakerName";
 
-import { REPORT_START_DATE, canonicalBooker, getAccountStats, getPeriodArbs, getReportEndDate } from "@/lib/accountReporting";
+import { REPORT_START_DATE, canonicalBooker, getRecordedAccountStats, getRecordedArbs, getRecordedReportEndDate } from "@/lib/accountReporting";
 
 function formatDate(date) {
   const [year, month, day] = String(date || "").split("-");
@@ -45,8 +45,8 @@ export default function TotalizedSection({ accounts, arbs }) {
   const [selectedVps, setSelectedVps] = useState("");
   const [selectedBookerKey, setSelectedBookerKey] = useState("");
 
-  const reportEndDate = useMemo(() => getReportEndDate(arbs), [arbs]);
-  const accountStats = useMemo(() => getAccountStats(accounts, arbs), [accounts, arbs]);
+  const reportEndDate = useMemo(() => getRecordedReportEndDate(arbs), [arbs]);
+  const accountStats = useMemo(() => getRecordedAccountStats(accounts, arbs), [accounts, arbs]);
 
   const accountRows = useMemo(
     () =>
@@ -95,7 +95,7 @@ export default function TotalizedSection({ accounts, arbs }) {
   const clientRows = accountRows.filter((row) => row.vps === selectedVps);
   const selectedBooker = bookerGroups.find((group) => group.key === selectedBookerKey);
   const periodTotals = useMemo(() => {
-    const periodArbs = getPeriodArbs(arbs);
+    const periodArbs = getRecordedArbs(arbs);
 
     return {
       count: periodArbs.length,
