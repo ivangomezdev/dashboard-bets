@@ -692,7 +692,7 @@ test("November 17 imports 43 unique closures with local corrections and five man
 test("November 21 publishes the full daily result and credits the balance with USD 60", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find((row) => row.date === "2026-11-21");
-  assert.equal(day.count, 42);
+  assert.equal(day.count, 41);
   assert.equal(day.profitMxn, 1718.28);
   assert.equal(day.profitUsd, 90.29);
   assert.equal(new Set(arbs.map((arb) => arb.id)).size, arbs.length);
@@ -704,12 +704,17 @@ test("November 21 publishes the full daily result and credits the balance with U
   assert.equal(credit, 60);
 });
 
-test("November 22 preserves manual replicas in Totalizado", async () => {
+test("November 22 includes all 25 local closures and preserves manual replicas in Totalizado", async () => {
   const { arbs, daily } = await getArbsDashboardData();
   const day = daily.find((row) => row.date === "2026-11-22");
   const manual = arbs.filter((arb) => arb.id.startsWith("manual:2026-11-22-"));
-  assert.equal(day.count, 37);
-  assert.equal(day.profitMxn, 955.91);
+  assert.equal(day.count, 41);
+  assert.equal(day.profitMxn, -2996.09);
+  assert.equal(day.profitUsd, -156.53);
+  const local = arbs.filter((arb) => arb.dateKey === day.date && !arb.id.startsWith("manual:"));
+  assert.equal(local.length, 25);
+  assert.equal(Number(local.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), -3638.09);
+  assert.equal(local.find((arb) => arb.id === "1795309515475-hzvgbc").placedDateKey, "2026-11-21");
   assert.equal(manual.length, 16);
   assert.equal(Number(manual.reduce((sum, arb) => sum + arb.totalStakeMxn, 0).toFixed(2)), 27523.51);
   assert.equal(manual.reduce((sum, arb) => sum + arb.profitMxn, 0), 642);
