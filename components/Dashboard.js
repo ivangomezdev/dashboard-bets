@@ -16,6 +16,9 @@ import { WITHDRAWALS } from "@/lib/withdrawals";
 // Saldo confirmado antes de registrar el 21/11.
 const BALANCE_BEFORE_NOVEMBER_21_USD = 11632.70;
 const NOVEMBER_21_BALANCE_CREDIT_USD = 60;
+// Ajuste del saldo al importe confirmado por el usuario.
+const BALANCE_ADJUSTMENT_USD = -196.53;
+const CURRENT_BALANCE_USD = BALANCE_BEFORE_NOVEMBER_21_USD + NOVEMBER_21_BALANCE_CREDIT_USD + BALANCE_ADJUSTMENT_USD;
 
 function withoutUsdCode(value) {
   return String(value).trim().replace(/^(-?)USD\s*/i, "$1$");
@@ -212,7 +215,7 @@ export default function Dashboard({ onLogout }) {
       <section className="stats-grid" aria-label="Metricas principales">
         <StatCard
           label="Saldo actual"
-          value={withoutUsdCode(formatMoney(BALANCE_BEFORE_NOVEMBER_21_USD + NOVEMBER_21_BALANCE_CREDIT_USD, "USD"))}
+          value={withoutUsdCode(formatMoney(CURRENT_BALANCE_USD, "USD"))}
           detail="Total disponible"
           tone="good"
         />
