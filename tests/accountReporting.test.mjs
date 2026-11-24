@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ACTIVE_CLIENT_COUNT, CLIENT_ACCOUNTS } from "../lib/clientAccounts.js";
 import { getArbsDashboardData } from "../lib/arbs.js";
-import { accountMatchesLeg, getAccountStats, getDailyAccountActivity, getPeriodArbs, getRecordedAccountStats, getRecordedReportEndDate, getReportEndDate } from "../lib/accountReporting.js";
+import { accountMatchesLeg, getAccountStats, getDailyAccountActivity, getDailyVpsActivity, getPeriodArbs, getRecordedAccountStats, getRecordedReportEndDate, getReportEndDate } from "../lib/accountReporting.js";
 
 test("includes November 7 and excludes November 8 from activity, profit and report end date", () => {
   const account = { id: "jack-11", booker: "Jack", vps: "VPS 11", currency: "USDT" };
@@ -755,4 +755,41 @@ test("November 23 includes all 29 ledger closures and 20 manual arbs totaling 17
       assert.equal(matches.length, 1, `${arb.id}: ${leg.bookerBase} / ${leg.vps}`);
     }
   }
+});
+
+test("getDailyVpsActivity computes per-VPS booker placed count and MXN/USD profit for a date", () => {
+  const accounts = [
+    { id: "vps-2-betfury", booker: "BetFury", vps: "VPS 2", status: "ON" },
+    { id: "vps-2-bc-game", booker: "BC.Game", vps: "VPS 2", status: "ON" }
+  ];
+  const arbs = [
+    {
+      dateKey: "2026-11-23",
+      profitMxn: 40,
+      profitUsd: 2,
+      legs: [
+        { bookerBase: "betfury", vps: "vps2", stake: 500, currency: "MXN", outcome: "won" },
+        { bookerBase: "bc.game", vps: "vps2", stake: 500, currency: "MXN", outcome: "lost" }
+      ]
+    },
+    {
+      dateKey: "2026-11-23",
+      profitMxn: 60,
+      profitUsd: 3,
+      legs: [
+        { bookerBase: "betfury", vps: "vps2", stake: 700, currency: "MXN", outcome: "won" },
+        { bookerBase: "codere", vps: "vps12", stake: 700, currency: "MXN", outcome: "lost" }
+      ]
+    }
+  ];
+  const stats = getDailyVpsActivity(accounts, arbs, "2026-11-23");
+  assert.equal(stats.get("vps-2-betfury").placedCount, 2);
+  assert.equal(stats.get("vps-2-betfury").settledCount, 2);
+  assert.equal(stats.get("vps-2-betfury").profitMxn, 50);
+  assert.equal(stats.get("vps-2-betfury").profitUsd, 2.5);
+  assert.equal(stats.get("vps-2-bc-game").placedCount, 1);
+  assert.equal(stats.get("vps-2-bc-game").profitMxn, 20);
+  const beforeStart = getDailyVpsActivity(accounts, [{ ...arbs[0], dateKey: "2026-11-22" }], "2026-11-22");
+  assert.equal(beforeStart.get("vps-2-betfury").placedCount, 0);
+  assert.equal(beforeStart.get("vps-2-betfury").profitMxn, 0);
 });

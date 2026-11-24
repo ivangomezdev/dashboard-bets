@@ -5,6 +5,7 @@ import ArbsTable from "@/components/ArbsTable";
 import BookersPanel from "@/components/BookersPanel";
 import ClientsSection from "@/components/ClientsSection";
 import DailyChart from "@/components/DailyChart";
+import DailyVpsSection from "@/components/DailyVpsSection";
 import Filters from "@/components/Filters";
 import StatCard from "@/components/StatCard";
 import TotalizedSection from "@/components/TotalizedSection";
@@ -149,7 +150,9 @@ export default function Dashboard({ onLogout }) {
   const totals = data.totals;
   const lastDay = data.daily[data.daily.length - 1];
   const viewTitle =
-    activeView === "clients"
+    activeView === "daily"
+      ? { eyebrow: "Actividad por VPS", heading: "Diario" }
+      : activeView === "clients"
       ? { eyebrow: "Control de cuentas", heading: "Clientes" }
       : activeView === "totalized"
         ? { eyebrow: "Resultados consolidados", heading: "Totalizado" }
@@ -173,6 +176,14 @@ export default function Dashboard({ onLogout }) {
               type="button"
             >
               Resumen
+            </button>
+            <button
+              aria-current={activeView === "daily" ? "page" : undefined}
+              className={activeView === "daily" ? "is-active" : ""}
+              onClick={() => setActiveView("daily")}
+              type="button"
+            >
+              Diario
             </button>
             <button
               aria-current={activeView === "clients" ? "page" : undefined}
@@ -204,7 +215,9 @@ export default function Dashboard({ onLogout }) {
         </div>
       </header>
 
-      {activeView === "clients" ? (
+      {activeView === "daily" ? (
+        <DailyVpsSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} daily={data.daily} />
+      ) : activeView === "clients" ? (
         <ClientsSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} daily={data.daily} />
       ) : activeView === "totalized" ? (
         <TotalizedSection accounts={CLIENT_ACCOUNTS} arbs={data.arbs} />

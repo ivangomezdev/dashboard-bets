@@ -1346,3 +1346,90 @@ button:disabled {
     padding: 18px;
   }
 }
+.clients-date input[type="date"] {
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  min-height: 42px;
+  padding: 8px 12px;
+}
+
+.daily-vps-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.daily-vps-pill {
+  align-items: baseline;
+  background: #f1efe8;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  display: inline-flex;
+  font-size: 0.8rem;
+  gap: 6px;
+  padding: 5px 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.daily-vps-pill small {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.daily-vps-pill.is-profit {
+  background: rgba(40, 122, 95, 0.1);
+  border-color: rgba(40, 122, 95, 0.28);
+  color: var(--green);
+}
+
+.daily-vps-pill.is-loss {
+  background: rgba(186, 63, 69, 0.09);
+  border-color: rgba(186, 63, 69, 0.28);
+  color: var(--red);
+}
+
+.daily-vps-card-meta {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.daily-vps-total {
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.daily-vps-total.is-profit {
+  background: rgba(40, 122, 95, 0.12);
+  color: var(--green);
+}
+
+.daily-vps-total.is-loss {
+  background: rgba(186, 63, 69, 0.1);
+  color: var(--red);
+}
+
+.daily-vps-total.is-neutral {
+  background: #e6e2d8;
+  color: var(--muted);
+}
+
+.daily-vps-row.has-activity {
+  border-color: rgba(39, 98, 123, 0.35);
+}
+
+.daily-vps-booker {
+  align-items: center;
+  display: flex;
+  font-weight: 800;
+  justify-content: space-between;
+}
