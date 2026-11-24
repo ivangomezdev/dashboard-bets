@@ -793,3 +793,23 @@ test("getDailyVpsActivity computes per-VPS booker placed count and MXN/USD profi
   assert.equal(beforeStart.get("vps-2-betfury").placedCount, 0);
   assert.equal(beforeStart.get("vps-2-betfury").profitMxn, 0);
 });
+
+test("November 23 records ban losses and expenses, credits USD 70 and deducts USD 187.99 from balance", async () => {
+  const { WITHDRAWALS } = await import("../lib/withdrawals.js");
+  const ids = [
+    "betfury-ban-2026-11-23",
+    "betpanda-ban-2026-11-23",
+    "ivan-week-payment-2026-11-23",
+    "vps-payment-2026-11-23"
+  ];
+  const items = ids.map((id) => WITHDRAWALS.find((m) => m.id === id));
+  assert.ok(items.every(Boolean));
+  assert.deepEqual(items.map((m) => m.amount), [487, 297, 166, 21.99]);
+  assert.equal(items[0].receiptImage, "/withdrawals/betfury-ban-2026-11-23.jpg");
+  assert.equal(items[1].receiptImage, "/withdrawals/betpanda-ban-2026-11-23.jpg");
+  const { readFile } = await import("node:fs/promises");
+  const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
+  const credit23 = Number(dashboard.match(/const NOVEMBER_23_BALANCE_CREDIT_USD = ([\d.]+);/)[1]);
+  assert.equal(credit23, 70);
+  assert.match(dashboard, /const NOVEMBER_23_EXPENSES_USD = 166 \+ 21\.99;/);
+});
