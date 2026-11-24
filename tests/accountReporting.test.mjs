@@ -718,7 +718,6 @@ test("November 22 includes all 25 local closures and preserves manual replicas i
   assert.equal(manual.length, 16);
   assert.equal(Number(manual.reduce((sum, arb) => sum + arb.totalStakeMxn, 0).toFixed(2)), 27523.51);
   assert.equal(manual.reduce((sum, arb) => sum + arb.profitMxn, 0), 642);
-  assert.equal(getRecordedReportEndDate(arbs), "2026-11-22");
 
   for (const arb of manual) {
     for (const leg of arb.legs) {
@@ -732,4 +731,28 @@ test("November 22 includes all 25 local closures and preserves manual replicas i
   assert.equal(stats.get("vps-15-codere").count, 2);
   assert.equal(stats.get("vps-12-sportsbetio").count, 2);
   assert.equal(stats.get("vps-15-pokerstars").count, 2);
+});
+
+test("November 23 includes all 29 ledger closures and 20 manual arbs totaling 1719.26 MXN", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find((row) => row.date === "2026-11-23");
+  const manual = arbs.filter((arb) => arb.id.startsWith("manual:2026-11-23-"));
+  const local = arbs.filter((arb) => arb.dateKey === day.date && !arb.id.startsWith("manual:2026-11-23-"));
+  assert.equal(day.count, 49);
+  assert.equal(day.profitMxn, 1719.26);
+  assert.equal(day.profitUsd, 90.32);
+  assert.equal(local.length, 29);
+  assert.equal(Number(local.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 777.26);
+  assert.equal(local.find((arb) => arb.id === "exec:02486f81-2df1-4760-9874-ea138f126e1a").placedDateKey, "2026-11-22");
+  assert.equal(manual.length, 20);
+  assert.equal(Number(manual.reduce((sum, arb) => sum + arb.totalStakeMxn, 0).toFixed(2)), 38779.37);
+  assert.equal(Number(manual.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 942);
+  assert.equal(getRecordedReportEndDate(arbs), "2026-11-23");
+
+  for (const arb of manual) {
+    for (const leg of arb.legs) {
+      const matches = CLIENT_ACCOUNTS.filter((account) => accountMatchesLeg(account, leg, CLIENT_ACCOUNTS));
+      assert.equal(matches.length, 1, `${arb.id}: ${leg.bookerBase} / ${leg.vps}`);
+    }
+  }
 });
