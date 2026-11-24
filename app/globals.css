@@ -1433,3 +1433,59 @@ button:disabled {
   font-weight: 800;
   justify-content: space-between;
 }
+.daily-vps-booker-trigger {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+}
+
+.daily-vps-booker-trigger:hover {
+  color: var(--blue);
+}
+
+.daily-vps-compare-link {
+  background: rgba(39, 98, 123, 0.08);
+  border: 1px solid rgba(39, 98, 123, 0.22);
+  border-radius: 999px;
+  color: var(--blue);
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 750;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.daily-vps-compare-link:hover {
+  background: rgba(39, 98, 123, 0.16);
+}
+
+.daily-vps-row-body {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 6px;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.daily-family-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.daily-family-heading {
+  margin: 6px 0 0;
+}
+
+.status-badge.is-active-vps {
+  background: rgba(40, 122, 95, 0.12);
+  color: var(--green);
+}
