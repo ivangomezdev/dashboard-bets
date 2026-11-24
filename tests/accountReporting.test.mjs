@@ -91,12 +91,13 @@ test("reports placement, settlement and first recorded bet for each VPS and hous
   });
 });
 
-test("latest inventory contains 47 available accounts across 17 houses", () => {
+test("latest inventory contains 44 available accounts across 16 houses without BC.Game", () => {
   const available = CLIENT_ACCOUNTS.filter((account) => account.status === "ON");
   const vpsFor = (booker) => available.filter((account) => account.booker === booker)
     .map((account) => Number(account.vps.split(" ")[1])).sort((a, b) => a - b);
-  assert.equal(ACTIVE_CLIENT_COUNT, 47);
-  assert.equal(new Set(available.map((account) => account.booker)).size, 17);
+  assert.equal(ACTIVE_CLIENT_COUNT, 44);
+  assert.equal(new Set(available.map((account) => account.booker)).size, 16);
+  assert.deepEqual(vpsFor("BC.Game"), []);
   assert.deepEqual(vpsFor("ArtLine"), [2, 3]);
   assert.deepEqual(vpsFor("BetFury"), [1, 2, 3, 14]);
   assert.deepEqual(vpsFor("Betsson"), [2, 11, 12, 13]);
