@@ -748,7 +748,6 @@ test("November 23 includes all 29 ledger closures and 20 manual arbs totaling 17
   assert.equal(manual.length, 20);
   assert.equal(Number(manual.reduce((sum, arb) => sum + arb.totalStakeMxn, 0).toFixed(2)), 38779.37);
   assert.equal(Number(manual.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 942);
-  assert.equal(getRecordedReportEndDate(arbs), "2026-11-23");
 
   for (const arb of manual) {
     for (const leg of arb.legs) {
@@ -813,4 +812,33 @@ test("November 23 records ban losses and expenses, credits USD 70 and deducts US
   const credit23 = Number(dashboard.match(/const NOVEMBER_23_BALANCE_CREDIT_USD = ([\d.]+);/)[1]);
   assert.equal(credit23, 70);
   assert.match(dashboard, /const NOVEMBER_23_EXPENSES_USD = 166 \+ 21\.99;/);
+});
+
+test("November 24 includes all 39 ledger closures, 20 manual arbs totaling 500 MXN and credits USD 96", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find((row) => row.date === "2026-11-24");
+  const manual = arbs.filter((arb) => arb.id.startsWith("manual:2026-11-24-"));
+  const local = arbs.filter((arb) => arb.dateKey === day.date && !arb.id.startsWith("manual:2026-11-24-"));
+  assert.equal(day.count, 59);
+  assert.equal(day.profitMxn, 2090.21);
+  assert.equal(day.profitUsd, 109.76);
+  assert.equal(local.length, 39);
+  assert.equal(Number(local.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 1590.21);
+  assert.equal(local.find((arb) => arb.id === "exec:d9a8a4aa-cd76-4742-9787-cb1fe3852e5e").placedDateKey, "2026-11-23");
+  assert.equal(manual.length, 20);
+  assert.equal(Number(manual.reduce((sum, arb) => sum + arb.totalStakeMxn, 0).toFixed(2)), 27945.58);
+  assert.equal(Number(manual.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 500);
+  assert.equal(getRecordedReportEndDate(arbs), "2026-11-24");
+
+  for (const arb of manual) {
+    for (const leg of arb.legs) {
+      const matches = CLIENT_ACCOUNTS.filter((account) => accountMatchesLeg(account, leg, CLIENT_ACCOUNTS));
+      assert.equal(matches.length, 1, `${arb.id}: ${leg.bookerBase} / ${leg.vps}`);
+    }
+  }
+
+  const { readFile } = await import("node:fs/promises");
+  const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
+  const credit24 = Number(dashboard.match(/const NOVEMBER_24_BALANCE_CREDIT_USD = ([\d.]+);/)[1]);
+  assert.equal(credit24, 96);
 });
