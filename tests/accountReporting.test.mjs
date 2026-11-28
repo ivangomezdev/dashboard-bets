@@ -882,7 +882,6 @@ test("November 26 includes all 47 ledger closures, 28 manual arbs totaling 2100 
   assert.equal(manual.length, 28);
   assert.equal(Number(manual.reduce((sum, arb) => sum + arb.totalStakeMxn, 0).toFixed(2)), 44934.23);
   assert.equal(Number(manual.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 876.33);
-  assert.equal(getRecordedReportEndDate(arbs), "2026-11-26");
 
   for (const arb of manual) {
     for (const leg of arb.legs) {
@@ -895,4 +894,32 @@ test("November 26 includes all 47 ledger closures, 28 manual arbs totaling 2100 
   const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
   const credit26 = Number(dashboard.match(/const NOVEMBER_26_BALANCE_CREDIT_USD = ([\d.]+);/)[1]);
   assert.equal(credit26, 98);
+});
+
+test("November 27 includes all 30 ledger closures, 24 manual arbs totaling 1811 MXN and credits USD 91", async () => {
+  const { arbs, daily } = await getArbsDashboardData();
+  const day = daily.find((row) => row.date === "2026-11-27");
+  const manual = arbs.filter((arb) => arb.id.startsWith("manual:2026-11-27-"));
+  const local = arbs.filter((arb) => arb.dateKey === day.date && !arb.id.startsWith("manual:2026-11-27-"));
+  assert.equal(day.count, 54);
+  assert.equal(day.profitMxn, 1811);
+  assert.equal(day.profitUsd, 95.12);
+  assert.equal(local.length, 30);
+  assert.equal(Number(local.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 658.58);
+  assert.equal(manual.length, 24);
+  assert.equal(Number(manual.reduce((sum, arb) => sum + arb.totalStakeMxn, 0).toFixed(2)), 54099.36);
+  assert.equal(Number(manual.reduce((sum, arb) => sum + arb.profitMxn, 0).toFixed(2)), 1152.42);
+  assert.equal(getRecordedReportEndDate(arbs), "2026-11-27");
+
+  for (const arb of manual) {
+    for (const leg of arb.legs) {
+      const matches = CLIENT_ACCOUNTS.filter((account) => accountMatchesLeg(account, leg, CLIENT_ACCOUNTS));
+      assert.equal(matches.length, 1, `${arb.id}: ${leg.bookerBase} / ${leg.vps}`);
+    }
+  }
+
+  const { readFile } = await import("node:fs/promises");
+  const dashboard = await readFile(new URL("../components/Dashboard.js", import.meta.url), "utf8");
+  const credit27 = Number(dashboard.match(/const NOVEMBER_27_BALANCE_CREDIT_USD = ([\d.]+);/)[1]);
+  assert.equal(credit27, 91);
 });
